@@ -1,0 +1,12 @@
+{
+	"presets": [
+		[
+			"@babel/preset-env",
+			{
+				"targets": {
+					"node": "current" // Ensures compatibility with your Node.js version
+				}
+			}
+		]
+	]
+}
