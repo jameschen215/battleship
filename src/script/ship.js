@@ -1,5 +1,5 @@
-const MAX_SIZE = 5;
-const MIN_SIZE = 2;
+const MAX_SIZE = 4;
+const MIN_SIZE = 1;
 
 export function createShip(size) {
 	if (arguments.length !== 1) {
