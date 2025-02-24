@@ -33,7 +33,7 @@ describe('createShip', () => {
 		);
 	});
 
-	// Test 4: Test if it returns a ship object with expected properties
+	// Test 4: Check if it returns a ship object with expected properties
 	it('should return a ship object with correct properties', () => {
 		const ship = createShip(3);
 
@@ -43,5 +43,56 @@ describe('createShip', () => {
 		expect(ship.hits).toBe(0);
 		expect(typeof ship.hit).toBe('function');
 		expect(typeof ship.isSunk).toBe('function');
+	});
+
+	// Test 5: Check if the hit method works properly
+	describe('hit method', () => {
+		let ship;
+
+		beforeEach(() => {
+			// Fresh ship for each test
+			ship = createShip(3);
+		});
+
+		it('should increment hits by 1 when called', () => {
+			expect(ship.hits).toBe(0);
+
+			ship.hit();
+			expect(ship.hits).toBe(1);
+
+			ship.hit();
+			expect(ship.hits).toBe(2);
+		});
+
+		it('should not affect the size property', () => {
+			ship.hit();
+			expect(ship.hits).toBe(1);
+			expect(ship.size).toBe(3);
+		});
+	});
+
+	// Test 5: Check if the isSunk method works properly
+	describe('isSunk method', () => {
+		let ship;
+
+		beforeEach(() => {
+			ship = createShip(3);
+		});
+
+		it('should return false when ship has no hits', () => {
+			expect(ship.isSunk()).toBe(false);
+		});
+
+		it('should return false when hits are less than size', () => {
+			ship.hit();
+			expect(ship.isSunk()).toBe(false);
+		});
+
+		it('should return true when hits equal size', () => {
+			ship.hit();
+			ship.hit();
+			ship.hit();
+			expect(ship.isSunk()).toBe(true);
+		});
 	});
 });

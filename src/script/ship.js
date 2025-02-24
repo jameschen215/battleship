@@ -14,16 +14,14 @@ export function createShip(size) {
 		);
 	}
 
-	const ship = {
+	return {
 		size,
 		hits: 0,
 		hit() {
 			this.hits += 1;
 		},
 		isSunk() {
-			this.hits >= this.size;
+			return this.hits >= this.size;
 		},
 	};
-
-	return ship;
 }
