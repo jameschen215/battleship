@@ -1,94 +1,88 @@
-import { createShip } from '../src/script/ship.js';
+import { Ship } from '../src/script/ship.js';
 
-describe('createShip', () => {
-	// Test 1: Check if createShip exists and is a function
-	it('should exist and be a function', () => {
-		expect(createShip).toBeDefined();
-		expect(typeof createShip).toBe('function');
+describe('Ship', () => {
+	it('is a defined class', () => {
+		expect(Ship).toBeDefined();
+		expect(typeof Ship).toBe('function');
 	});
 
-	// Test 2: Check if the function has only one parameter
-	it('should require only one parameter', () => {
-		expect(() => createShip()).toThrow(
-			'This function requires only one parameter - no more, no fewer.'
-		);
-		expect(() => createShip(3, 5)).toThrow(
-			'This function requires only one parameter - no more, no fewer.'
-		);
+	describe('Ship static properties', () => {
+		it('defines MIN_SIZE and MAX_SIZE', () => {
+			expect(Ship.MIN_SIZE).toBe(1);
+			expect(Ship.MAX_SIZE).toBe(4);
+		});
 	});
 
-	// Test 3: Check if size is an integer between 2 and 5, inclusive.
-	it('should throw an error when size is not an integer or size is out of the range.', () => {
-		expect(() => createShip('3')).toThrow(
-			'Size should be an integer and between 2 and 5, inclusive.'
-		);
-		expect(() => createShip(3.5)).toThrow(
-			'Size should be an integer and between 2 and 5, inclusive.'
-		);
-		expect(() => createShip(7)).toThrow(
-			'Size should be an integer and between 2 and 5, inclusive.'
-		);
-		expect(() => createShip(-3)).toThrow(
-			'Size should be an integer and between 2 and 5, inclusive.'
-		);
+	describe('constructor', () => {
+		it('requires exactly one parameter', () => {
+			expect(() => new Ship()).toThrow(
+				'Ship constructor requires exactly one parameter'
+			);
+			expect(() => new Ship(2, 3)).toThrow(
+				'Ship constructor requires exactly one parameter'
+			);
+		});
+
+		it('throws errors for invalid size', () => {
+			expect(() => new Ship('2')).toThrow(
+				'Size must be an integer between 1 and 4'
+			);
+			expect(() => new Ship(3.5)).toThrow(
+				'Size must be an integer between 1 and 4'
+			);
+			expect(() => new Ship(0)).toThrow(
+				'Size must be an integer between 1 and 4'
+			);
+			expect(() => new Ship(5)).toThrow(
+				'Size must be an integer between 1 and 4'
+			);
+		});
+
+		it('creates a ship with correct size', () => {
+			const ship = new Ship(3);
+
+			expect(ship.size).toBe(3);
+			expect(typeof ship.hit).toBe('function');
+			expect(typeof ship.isSunk).toBe('function');
+		});
 	});
 
-	// Test 4: Check if it returns a ship object with expected properties
-	it('should return a ship object with correct properties', () => {
-		const ship = createShip(3);
-
-		expect(ship).toBeDefined();
-		expect(ship).toBeInstanceOf(Object);
-		expect(ship.size).toBe(3);
-		expect(ship.hits).toBe(0);
-		expect(typeof ship.hit).toBe('function');
-		expect(typeof ship.isSunk).toBe('function');
-	});
-
-	// Test 5: Check if the hit method works properly
-	describe('hit method', () => {
+	describe('hit', () => {
 		let ship;
 
 		beforeEach(() => {
-			// Fresh ship for each test
-			ship = createShip(3);
+			ship = new Ship(3);
 		});
 
-		it('should increment hits by 1 when called', () => {
-			expect(ship.hits).toBe(0);
-
+		it('increments hits by 1', () => {
+			expect(ship.getHits()).toBe(0);
 			ship.hit();
-			expect(ship.hits).toBe(1);
-
+			expect(ship.getHits()).toBe(1);
 			ship.hit();
-			expect(ship.hits).toBe(2);
+			expect(ship.getHits()).toBe(2);
 		});
 
-		it('should not affect the size property', () => {
+		it('does not affect size', () => {
 			ship.hit();
-			expect(ship.hits).toBe(1);
+			expect(ship.getHits()).toBe(1);
 			expect(ship.size).toBe(3);
 		});
 	});
 
-	// Test 5: Check if the isSunk method works properly
-	describe('isSunk method', () => {
+	describe('isSunk', () => {
 		let ship;
 
 		beforeEach(() => {
-			ship = createShip(3);
+			ship = new Ship(3);
 		});
 
-		it('should return false when ship has no hits', () => {
+		it('returns false when hits are less than size', () => {
 			expect(ship.isSunk()).toBe(false);
-		});
-
-		it('should return false when hits are less than size', () => {
 			ship.hit();
 			expect(ship.isSunk()).toBe(false);
 		});
 
-		it('should return true when hits equal size', () => {
+		it('returns true when hits equal or exceed size', () => {
 			ship.hit();
 			ship.hit();
 			ship.hit();

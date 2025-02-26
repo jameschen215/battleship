@@ -1,27 +1,36 @@
-const MAX_SIZE = 4;
-const MIN_SIZE = 1;
+export class Ship {
+	static MIN_SIZE = 1;
+	static MAX_SIZE = 4;
 
-export function createShip(size) {
-	if (arguments.length !== 1) {
-		throw new Error(
-			'This function requires only one parameter - no more, no fewer.'
-		);
+	#hits = 0;
+
+	constructor(size) {
+		if (arguments.length !== 1) {
+			throw new Error('Ship constructor requires exactly one parameter');
+		}
+
+		if (
+			!Number.isInteger(size) ||
+			size < Ship.MIN_SIZE ||
+			size > Ship.MAX_SIZE
+		) {
+			throw new Error(
+				`Size must be an integer between ${Ship.MIN_SIZE} and ${Ship.MAX_SIZE}`
+			);
+		}
+
+		this.size = size;
 	}
 
-	if (!Number.isInteger(size) || size > MAX_SIZE || size < MIN_SIZE) {
-		throw new Error(
-			'Size should be an integer and between 2 and 5, inclusive.'
-		);
+	getHits() {
+		return this.#hits;
 	}
 
-	return {
-		size,
-		hits: 0,
-		hit() {
-			this.hits += 1;
-		},
-		isSunk() {
-			return this.hits >= this.size;
-		},
-	};
+	hit() {
+		this.#hits += 1;
+	}
+
+	isSunk() {
+		return this.#hits >= this.size;
+	}
 }
