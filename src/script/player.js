@@ -1,7 +1,52 @@
-export function createPlayer(type, name = 'unnamed') {
-	if (arguments.length < 1 || arguments.length > 2) {
-		throw new Error('Too many or too few parameters.');
+import { Gameboard } from './gameboard.js';
+
+export class Player {
+	/**
+	 * Base class for players, initializes with a Gameboard.
+	 */
+	constructor() {
+		this.gameboard = new Gameboard();
 	}
 
-	return {};
+	attack(enemyBoard, row, col) {
+		throw new Error('attack method must be implemented by subclass');
+	}
+}
+
+export class HumanPlayer extends Player {
+	constructor(name = 'Unnamed') {
+		super();
+		this.name = name;
+	}
+
+	attack(enemyBoard, row, col) {
+		if (!(enemyBoard instanceof Gameboard)) {
+			throw new Error('Must attack an enemy Gameboard instance');
+		}
+
+		return enemyBoard.receiveAttack(row, col);
+	}
+}
+
+export class ComputerPlayer extends Player {
+	constructor() {
+		super();
+		this.name = 'Bot';
+	}
+
+	attack(enemyBoard) {
+		if (!(enemyBoard instanceof Gameboard)) {
+			throw new Error('Must attack an enemy Gameboard instance');
+		}
+
+		let row;
+		let col;
+
+		do {
+			row = Math.floor(Math.random() * Gameboard.BOARD_SIZE);
+			col = Math.floor(Math.random() * Gameboard.BOARD_SIZE);
+		} while (enemyBoard.isCellAttacked(row, col));
+
+		return enemyBoard.receiveAttack(row, col);
+	}
 }

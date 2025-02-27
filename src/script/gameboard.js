@@ -180,4 +180,19 @@ export class Gameboard {
 		this.#board = this.#createBoard();
 		this.#ships = [];
 	}
+
+	isCellAttacked(row, col) {
+		if (
+			!Number.isInteger(row) ||
+			!Number.isInteger(col) ||
+			row < 0 ||
+			row >= Gameboard.BOARD_SIZE ||
+			col < 0 ||
+			col >= Gameboard.BOARD_SIZE
+		) {
+			throw new Error('Coordinates must be integers between 0 and 9');
+		}
+
+		return this.#board[row][col].state !== 'empty';
+	}
 }

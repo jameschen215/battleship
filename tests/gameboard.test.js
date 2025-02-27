@@ -34,6 +34,7 @@ describe('Gameboard', () => {
 			expect(typeof gameboard.allSunk).toBe('function');
 			expect(typeof gameboard.getCellState).toBe('function');
 			expect(typeof gameboard.reset).toBe('function');
+			expect(typeof gameboard.isCellAttacked).toBe('function');
 
 			gameboard.board.forEach((row) => {
 				row.forEach((cell) => {
@@ -369,6 +370,39 @@ describe('Gameboard', () => {
 			expect(
 				gameboard.board.map((row) => row.map((cell) => cell.state))
 			).toEqual(initialBoard);
+		});
+	});
+
+	describe('isCellAttacked', () => {
+		let gameboard;
+
+		beforeEach(() => {
+			gameboard = new Gameboard();
+		});
+
+		it('throws error for invalid coordinates', () => {
+			expect(() => gameboard.isCellAttacked()).toThrow(
+				'Coordinates must be integers between 0 and 9'
+			);
+			expect(() => gameboard.isCellAttacked(0)).toThrow(
+				'Coordinates must be integers between 0 and 9'
+			);
+			expect(() => gameboard.isCellAttacked(0, -1)).toThrow(
+				'Coordinates must be integers between 0 and 9'
+			);
+			expect(() => gameboard.isCellAttacked(10, 1)).toThrow(
+				'Coordinates must be integers between 0 and 9'
+			);
+		});
+
+		it('returns true when a cell is attacked', () => {
+			gameboard.receiveAttack(0, 0);
+			expect(gameboard.isCellAttacked(0, 0)).toBe(true);
+		});
+
+		it('returns true when a cell is attacked', () => {
+			gameboard.receiveAttack(0, 0);
+			expect(gameboard.isCellAttacked(1, 1)).toBe(false);
 		});
 	});
 
