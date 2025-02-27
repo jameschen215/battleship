@@ -20,10 +20,41 @@ describe('Player', () => {
 			expect(player.gameboard).toBeInstanceOf(Gameboard);
 			expect(player.gameboard.board.length).toBe(10);
 		});
+	});
 
+	describe('placeShips', () => {
+		let human;
+		let shipSizes;
+
+		beforeEach(() => {
+			human = new HumanPlayer('Tom');
+			shipSizes = [2, 3];
+		});
+
+		it('places the correct number of ships', () => {
+			human.placeShips(shipSizes);
+			expect(human.gameboard.ships.length).toBe(2);
+		});
+
+		it('place ships of the correct sizes', () => {
+			human.placeShips(shipSizes);
+			const placedSizes = human.gameboard.ships
+				.map(({ ship }) => ship.size)
+				.sort();
+
+			expect(placedSizes).toEqual([2, 3]);
+		});
+
+		it('handles an empty array', () => {
+			human.placeShips([]);
+			expect(human.gameboard.ships.length).toBe(0);
+		});
+	});
+
+	describe('attack', () => {
 		it('throws error when attack is called directly', () => {
+			const player = new Player();
 			const enemyBoard = new Gameboard();
-
 			expect(() => player.attack(enemyBoard, 0, 0)).toThrow(
 				'attack method must be implemented by subclass'
 			);

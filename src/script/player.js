@@ -8,6 +8,19 @@ export class Player {
 		this.gameboard = new Gameboard();
 	}
 
+	placeShips(shipSizes) {
+		for (const size of shipSizes) {
+			let placed = false;
+
+			while (!placed) {
+				const row = Math.floor(Math.random() * Gameboard.BOARD_SIZE);
+				const col = Math.floor(Math.random() * Gameboard.BOARD_SIZE);
+				const direction = Math.random() < 0.5 ? 'horizontal' : 'vertical';
+				placed = this.gameboard.placeShip(size, row, col, direction).success;
+			}
+		}
+	}
+
 	attack(enemyBoard, row, col) {
 		throw new Error('attack method must be implemented by subclass');
 	}

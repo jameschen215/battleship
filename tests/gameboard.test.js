@@ -95,43 +95,45 @@ describe('Gameboard', () => {
 			gameboard = new Gameboard();
 		});
 
-		it('requires size, startRow, startCol, and an optional direction', () => {
-			expect(() => gameboard.placeShip()).toThrow(
-				'placeShip requires size, startRow, startCol, and an optional direction'
-			);
-			expect(() => gameboard.placeShip(3)).toThrow(
-				'placeShip requires size, startRow, startCol, and an optional direction'
-			);
-			expect(() => gameboard.placeShip(3, 0)).toThrow(
-				'placeShip requires size, startRow, startCol, and an optional direction'
-			);
-			expect(() => gameboard.placeShip(3, 0, 0, 'horizontal', true)).toThrow(
-				'placeShip requires size, startRow, startCol, and an optional direction'
-			);
+		// it('requires size, startRow, startCol, and an optional direction', () => {
+		// 	expect(() => gameboard.placeShip()).toThrow(
+		// 		'placeShip requires size, startRow, startCol, and an optional direction'
+		// 	);
+		// 	expect(() => gameboard.placeShip(3)).toThrow(
+		// 		'placeShip requires size, startRow, startCol, and an optional direction'
+		// 	);
+		// 	expect(() => gameboard.placeShip(3, 0)).toThrow(
+		// 		'placeShip requires size, startRow, startCol, and an optional direction'
+		// 	);
+		// 	expect(() => gameboard.placeShip(3, 0, 0, 'horizontal', true)).toThrow(
+		// 		'placeShip requires size, startRow, startCol, and an optional direction'
+		// 	);
+		// });
+
+		it('returns unsuccess for invalid start points', () => {
+			expect(gameboard.placeShip(3, '1', 0)).toEqual({
+				success: false,
+				reason: 'Coordinates are not invalid or out of board boundaries',
+			});
+			expect(gameboard.placeShip(3, 3.5, 2)).toEqual({
+				success: false,
+				reason: 'Coordinates are not invalid or out of board boundaries',
+			});
+			expect(gameboard.placeShip(3, 0, 10)).toEqual({
+				success: false,
+				reason: 'Coordinates are not invalid or out of board boundaries',
+			});
 		});
 
-		it('throws errors for invalid start points', () => {
-			expect(() => gameboard.placeShip(3, '1', 0)).toThrow(
-				'startRow must be an integer between 0 and 9'
-			);
-			expect(() => gameboard.placeShip(3, 3.5, 2)).toThrow(
-				'startRow must be an integer between 0 and 9'
-			);
-			expect(() => gameboard.placeShip(3, 1, -2)).toThrow(
-				'startCol must be an integer between 0 and 9'
-			);
-			expect(() => gameboard.placeShip(3, 0, 10)).toThrow(
-				'startCol must be an integer between 0 and 9'
-			);
-		});
-
-		it('throws errors for invalid directions', () => {
-			expect(() => gameboard.placeShip(3, 0, 0, 'diagonal')).toThrow(
-				'direction must be "horizontal" or "vertical"'
-			);
-			expect(() => gameboard.placeShip(3, 0, 0, '')).toThrow(
-				'direction must be "horizontal" or "vertical"'
-			);
+		it('returns unsuccess for invalid directions', () => {
+			expect(gameboard.placeShip(3, 0, 0, 'diagonal')).toEqual({
+				success: false,
+				reason: 'Directions must be "horizontal" or "vertical"',
+			});
+			expect(gameboard.placeShip(3, 0, 0, '')).toEqual({
+				success: false,
+				reason: 'Directions must be "horizontal" or "vertical"',
+			});
 		});
 
 		it('places a ship horizontally by default', () => {
@@ -152,20 +154,34 @@ describe('Gameboard', () => {
 			]);
 		});
 
-		it('throws errors when ships out of bounds', () => {
-			expect(() => gameboard.placeShip(4, 8, 8)).toThrow(
-				'Ship placement exceeds board boundaries'
-			);
-			expect(() => gameboard.placeShip(2, 9, 0, 'vertical')).toThrow(
-				'Ship placement exceeds board boundaries'
-			);
+		it('returns success when a ship is placed', () => {
+			const result = gameboard.placeShip(3, 0, 0);
+			expect(result.success).toBe(true);
 		});
 
-		it('throws errors when ships overlapping each other', () => {
+		it('returns unsuccess when fail to placed a ship', () => {
+			gameboard.placeShip(3, 0, 0);
+			const result = gameboard.placeShip(2, 0, 0);
+			expect(result.success).toBe(false);
+		});
+
+		it('returns unsuccess when ships out of bounds', () => {
+			expect(gameboard.placeShip(4, 8, 8)).toEqual({
+				success: false,
+				reason: 'Ship placement exceeds board boundaries',
+			});
+			expect(gameboard.placeShip(2, 9, 0, 'vertical')).toEqual({
+				success: false,
+				reason: 'Ship placement exceeds board boundaries',
+			});
+		});
+
+		it('returns unsuccess when ships overlapping each other', () => {
 			gameboard.placeShip(3, 1, 1);
-			expect(() => gameboard.placeShip(4, 0, 1, 'vertical')).toThrow(
-				'Ship placement overlaps with another ship'
-			);
+			expect(gameboard.placeShip(4, 0, 1, 'vertical')).toEqual({
+				success: false,
+				reason: 'Ship placement overlaps with another ship',
+			});
 		});
 	});
 

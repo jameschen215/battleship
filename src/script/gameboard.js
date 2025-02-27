@@ -57,35 +57,34 @@ export class Gameboard {
 		return board;
 	}
 
-	placeShip(...args) {
-		if (args.length < 3 || args.length > 4) {
-			throw new Error(
-				'placeShip requires size, startRow, startCol, and an optional direction'
-			);
-		}
+	placeShip(size, startRow, startCol, direction = 'horizontal') {
+		// if (args.length < 3 || args.length > 4) {
+		// 	throw new Error(
+		// 		'placeShip requires size, startRow, startCol, and an optional direction'
+		// 	);
+		// }
 
-		const [size, startRow, startCol, direction = 'horizontal'] = args;
-
+		// Check if coordinates are out of bounds
 		if (
 			!Number.isInteger(startRow) ||
 			startRow < 0 ||
-			startRow >= Gameboard.BOARD_SIZE
-		) {
-			throw new Error(
-				`startRow must be an integer between 0 and ${Gameboard.BOARD_SIZE - 1}`
-			);
-		}
-		if (
+			startRow >= Gameboard.BOARD_SIZE ||
 			!Number.isInteger(startCol) ||
 			startCol < 0 ||
 			startCol >= Gameboard.BOARD_SIZE
 		) {
-			throw new Error(
-				`startCol must be an integer between 0 and ${Gameboard.BOARD_SIZE - 1}`
-			);
+			return {
+				success: false,
+				reason: 'Coordinates are not invalid or out of board boundaries',
+			};
 		}
+
+		// direction must be "horizontal" or "vertical"
 		if (!Gameboard.DIRECTIONS.includes(direction)) {
-			throw new Error('direction must be "horizontal" or "vertical"');
+			return {
+				success: false,
+				reason: 'Directions must be "horizontal" or "vertical"',
+			};
 		}
 
 		const ship = new Ship(size);
@@ -95,23 +94,33 @@ export class Gameboard {
 			let row = startRow + (direction === 'vertical' ? i : 0);
 			let col = startCol + (direction === 'horizontal' ? i : 0);
 
+			// Ship placement exceeds board boundaries
 			if (row >= Gameboard.BOARD_SIZE || col >= Gameboard.BOARD_SIZE) {
-				throw new Error('Ship placement exceeds board boundaries');
+				return {
+					success: false,
+					reason: 'Ship placement exceeds board boundaries',
+				};
 			}
 
 			// TODO: There should be one cell wide gap in between ships
+			// Ship placement overlaps with another ship
 			if (
 				this.#ships.some((shipObj) =>
 					shipObj.positions.some(([r, c]) => r === row && c === col)
 				)
 			) {
-				throw new Error('Ship placement overlaps with another ship');
+				return {
+					success: false,
+					reason: 'Ship placement overlaps with another ship',
+				};
 			}
 
 			positions.push([row, col]);
 		}
 
 		this.#ships.push({ ship, positions });
+
+		return { success: true };
 	}
 
 	receiveAttack(...args) {
