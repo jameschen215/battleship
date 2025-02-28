@@ -21,40 +21,6 @@ describe('Gameboard', () => {
 		});
 	});
 
-	// describe('constructor', () => {
-	// 	it('throws error for invalid boardSize', () => {
-	// 		// expect(() => new Gameboard()).toThrow(
-	// 		// 	'board size must be an integer between 2 and 10'
-	// 		// );
-	// 		expect(() => new Gameboard('10')).toThrow(
-	// 			'board size must be an integer between 1 and 10'
-	// 		);
-	// 		expect(() => new Gameboard(0)).toThrow(
-	// 			'board size must be an integer between 1 and 10'
-	// 		);
-	// 		expect(() => new Gameboard(11)).toThrow(
-	// 			'board size must be an integer between 1 and 10'
-	// 		);
-	// 	});
-
-	// 	it('creates a gameboard with correct setup', () => {
-	// 		const gameboard = new Gameboard(10);
-
-	// 		expect(typeof gameboard.placeShip).toBe('function');
-	// 		expect(typeof gameboard.receiveAttack).toBe('function');
-	// 		expect(typeof gameboard.allSunk).toBe('function');
-	// 		expect(typeof gameboard.getCellState).toBe('function');
-	// 		// expect(typeof gameboard.reset).toBe('function');
-	// 		expect(typeof gameboard.isCellAttacked).toBe('function');
-
-	// 		gameboard.board.forEach((row) => {
-	// 			row.forEach((cell) => {
-	// 				expect(cell.state).toBe('empty');
-	// 			});
-	// 		});
-	// 	});
-	// });
-
 	describe('has board getter and ships getter', () => {
 		let gameboard;
 
@@ -106,21 +72,6 @@ describe('Gameboard', () => {
 		beforeEach(() => {
 			gameboard = new Gameboard();
 		});
-
-		// it('requires size, startRow, startCol, and an optional direction', () => {
-		// 	expect(() => gameboard.placeShip()).toThrow(
-		// 		'placeShip requires size, startRow, startCol, and an optional direction'
-		// 	);
-		// 	expect(() => gameboard.placeShip(3)).toThrow(
-		// 		'placeShip requires size, startRow, startCol, and an optional direction'
-		// 	);
-		// 	expect(() => gameboard.placeShip(3, 0)).toThrow(
-		// 		'placeShip requires size, startRow, startCol, and an optional direction'
-		// 	);
-		// 	expect(() => gameboard.placeShip(3, 0, 0, 'horizontal', true)).toThrow(
-		// 		'placeShip requires size, startRow, startCol, and an optional direction'
-		// 	);
-		// });
 
 		it('returns unsuccess for invalid start points', () => {
 			expect(gameboard.placeShip(2, '1', 0)).toEqual({
@@ -203,16 +154,22 @@ describe('Gameboard', () => {
 			gameboard = new Gameboard();
 		});
 
-		it('throws errors for invalid coordinates ', () => {
-			expect(() => gameboard.receiveAttack(-1, -1)).toThrow(
-				`Coordinates must be integers between 0 and ${BOARD_SIZE - 1}`
-			);
-			expect(() => gameboard.receiveAttack(10, 10)).toThrow(
-				`Coordinates must be integers between 0 and ${BOARD_SIZE - 1}`
-			);
-			expect(() => gameboard.receiveAttack('0', '0')).toThrow(
-				`Coordinates must be integers between 0 and ${BOARD_SIZE - 1}`
-			);
+		it('return false info for invalid coordinate ', () => {
+			expect(gameboard.receiveAttack(-1, -1)).toEqual({
+				hit: false,
+				sunk: false,
+				reason: 'invalid coordinate',
+			});
+			expect(gameboard.receiveAttack(10, 10)).toEqual({
+				hit: false,
+				sunk: false,
+				reason: 'invalid coordinate',
+			});
+			expect(gameboard.receiveAttack('0', '0')).toEqual({
+				hit: false,
+				sunk: false,
+				reason: 'invalid coordinate',
+			});
 		});
 
 		it('marks a cell as hit when attacking a ship', () => {
@@ -249,31 +206,18 @@ describe('Gameboard', () => {
 			});
 		});
 
-		it('returns sunk status when a ship is fully hit', () => {
+		it('returns hit info when a ship is fully hit', () => {
 			gameboard.placeShip(2, 0, 0);
 			gameboard.receiveAttack(0, 0);
 			expect(gameboard.receiveAttack(0, 1)).toEqual({ hit: true, sunk: true });
 		});
 
-		it('returns miss status when no ship is hit', () => {
+		it('returns miss info when no ship is hit', () => {
 			expect(gameboard.receiveAttack(0, 0)).toEqual({
 				hit: false,
 				sunk: false,
 			});
 		});
-
-		// it('throws error when receive attack on attacked cell', () => {
-		// 	gameboard.placeShip(3, 0, 0, 'horizontal');
-		// 	gameboard.receiveAttack(0, 0);
-		// 	gameboard.receiveAttack(9, 9);
-
-		// 	expect(() => gameboard.receiveAttack(0, 0)).toThrow(
-		// 		'Cannot attack already attacked cells'
-		// 	);
-		// 	expect(() => gameboard.receiveAttack(9, 9)).toThrow(
-		// 		'Cannot attack already attacked cells'
-		// 	);
-		// });
 	});
 
 	describe('allSunk', () => {
@@ -390,16 +334,16 @@ describe('Gameboard', () => {
 
 		it('throws error for invalid coordinates', () => {
 			expect(() => gameboard.isCellAttacked()).toThrow(
-				'Coordinates must be integers between 0 and 9'
+				`Coordinates must be integers between 0 and ${BOARD_SIZE - 1}`
 			);
 			expect(() => gameboard.isCellAttacked(0)).toThrow(
-				'Coordinates must be integers between 0 and 9'
+				`Coordinates must be integers between 0 and ${BOARD_SIZE - 1}`
 			);
 			expect(() => gameboard.isCellAttacked(0, -1)).toThrow(
-				'Coordinates must be integers between 0 and 9'
+				`Coordinates must be integers between 0 and ${BOARD_SIZE - 1}`
 			);
 			expect(() => gameboard.isCellAttacked(10, 1)).toThrow(
-				'Coordinates must be integers between 0 and 9'
+				`Coordinates must be integers between 0 and ${BOARD_SIZE - 1}`
 			);
 		});
 
@@ -413,23 +357,4 @@ describe('Gameboard', () => {
 			expect(gameboard.isCellAttacked(1, 1)).toBe(false);
 		});
 	});
-
-	// describe('reset', () => {
-	// 	it('resets the board and ships to their initial state', () => {
-	// 		const gameboard = new Gameboard(10);
-	// 		gameboard.placeShip(2, 0, 0);
-	// 		gameboard.receiveAttack(0, 0);
-	// 		gameboard.reset();
-	// 		expect(gameboard.board).toEqual(
-	// 			Array(10)
-	// 				.fill()
-	// 				.map(() =>
-	// 					Array(10)
-	// 						.fill()
-	// 						.map(() => expect.objectContaining({ state: 'empty' }))
-	// 				)
-	// 		);
-	// 		expect(gameboard.ships).toEqual([]);
-	// 	});
-	// });
 });

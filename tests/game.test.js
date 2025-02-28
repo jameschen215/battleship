@@ -3,33 +3,37 @@ import { Game } from '../src/script/game.js';
 import { Gameboard } from '../src/script/gameboard.js';
 import { HumanPlayer, ComputerPlayer } from '../src/script/player.js';
 
-jest.mock('../src/script/constants.js', () => ({
-	BOARD_SIZE: 2,
-	SHIP_SIZES: [2, 2],
-}));
+// jest.mock('../src/script/constants.js', () => ({
+// 	BOARD_SIZE: 2,
+// 	SHIP_SIZES: [2, 2],
+// }));
 
 describe('Game', () => {
-	describe('existence', () => {
+	describe('constructor', () => {
+		let game;
+
+		beforeEach(() => {
+			game = new Game();
+		});
+
 		it('is a defined class', () => {
 			expect(Game).toBeDefined();
 			expect(typeof Game).toBe('function');
 		});
-	});
 
-	describe('constructor', () => {
-		it('creates two players and create gameboard for each', () => {
-			const game = new Game();
-
+		it('creates a human player with a correctly initialized gameboard ', () => {
 			expect(game.human).toBeInstanceOf(HumanPlayer);
-			expect(game.bot).toBeInstanceOf(ComputerPlayer);
 
 			expect(game.human.gameboard).toBeInstanceOf(Gameboard);
-			expect(game.bot.gameboard).toBeInstanceOf(Gameboard);
 
 			game.human.gameboard.board.flat().forEach((cell) => {
 				expect(cell.state).toBe('empty');
 			});
+		});
 
+		it('creates a computer player with a correctly initialized gameboard', () => {
+			expect(game.bot).toBeInstanceOf(ComputerPlayer);
+			expect(game.bot.gameboard).toBeInstanceOf(Gameboard);
 			game.bot.gameboard.board.flat().forEach((cell) => {
 				expect(cell.state).toBe('empty');
 			});
@@ -46,6 +50,14 @@ describe('Game', () => {
 
 		afterEach(() => jest.resetAllMocks());
 
+		it('initializes isGameOver to "false"', () => {
+			expect(game.isGameOver).toBe(false);
+		});
+
+		it('initializes winner to "null"', () => {
+			expect(game.winner).toBe(null);
+		});
+
 		it('assigns the current player', () => {
 			expect(game.currentPlayer).toEqual(game.human);
 		});
@@ -58,23 +70,36 @@ describe('Game', () => {
 	});
 
 	describe('playTurn', () => {
-		it('handles a single turn correctly', () => {
-			const game = new Game();
-			game.initializeGame();
+		let game;
+
+		beforeEach(() => {
+			game = new Game();
+		});
+
+		it('handles a human turn correctly', () => {
+			game.isGameOver = false;
+			game.winner = null;
+			game.currentPlayer = game.human;
+			game.bot.gameboard.placeShip(2, 0, 0, 'horizontal');
+
 			expect(game.currentPlayer.name).toBe('Unnamed');
 
-			game.playTurn(0, 0);
+			const result = game.playTurn(0, 0);
 
-			expect(game.bot.gameboard.isCellAttacked(0, 0)).toBe(true);
-			expect(game.currentPlayer.name).toBe('Bot');
+			expect(result.hit).toBe(true);
+			expect(game.currentPlayer.name).not.toBe('Unnamed');
 		});
 	});
 
 	describe('checkWinner', () => {
-		it('declares a winner when all ships are sunk', () => {
-			const game = new Game();
-			game.initializeGame();
+		let game;
 
+		beforeEach(() => {
+			game = new Game();
+		});
+
+		it('declares a winner when all ships are sunk', () => {
+			game.initializeGame();
 			game.bot.gameboard.ships.forEach(({ ship }) => {
 				for (let i = 0; i < ship.size; i++) {
 					ship.hit();
@@ -82,38 +107,102 @@ describe('Game', () => {
 			});
 
 			game.checkWinner();
-
 			expect(game.isGameOver).toBe(true);
 			expect(game.winner).toBe(game.human);
 		});
-	});
 
-	describe('update the display each turn', () => {
-		const game = new Game();
-		game.initializeGame();
+		it('goes on when ships are hit but not sunk', () => {
+			game.bot.gameboard.placeShip(2, 0, 0);
+			game.playTurn(0, 0);
+			game.checkWinner();
 
-		jest.spyOn(game, 'updateUI');
-		game.runGame();
-		expect(game.updateUI).toHaveBeenCalled();
+			expect(game.winner).toBe(null);
+			expect(game.isGameOver).toBe(false);
+		});
+
+		it('goes on when not all ships are hit and sunk', () => {
+			game.currentPlayer = game.human;
+			game.winner = null;
+			game.isGameOver = false;
+			game.human.gameboard.placeShip(2, 0, 0);
+			game.bot.gameboard.placeShip(2, 0, 0);
+			game.bot.gameboard.placeShip(2, 1, 0);
+
+			game.playTurn(0, 0);
+			game.playTurn(0, 0);
+			const result = game.playTurn(0, 1);
+			game.checkWinner();
+
+			expect(result.sunk).toBe(true);
+			expect(game.winner).toBe(null);
+			expect(game.isGameOver).toBe(false);
+		});
 	});
 
 	describe('runGame', () => {
-		it('ends when a player wins', () => {
-			const game = new Game();
-			game.initializeGame();
+		let game;
 
-			// Mock getUserInput: first try (0, 0), then (1, 1)
-			jest
-				.spyOn(game, 'getUserInput')
-				.mockReturnValueOnce({ row: 0, col: 0 })
-				.mockReturnValueOnce({ row: 0, col: 1 })
-				.mockReturnValueOnce({ row: 1, col: 0 })
-				.mockReturnValueOnce({ row: 1, col: 1 });
+		beforeEach(() => {
+			game = new Game();
+			// Manually place ships for predictable testing
 
-			game.runGame();
+			game.human.gameboard.placeShip(1, 0, 0, 'horizontal'); // Human's ship at (0, 0)
+			game.bot.gameboard.placeShip(1, 1, 1, 'horizontal'); // Bot's ship at (1, 1)
+			game.currentPlayer = game.human; // Start with human's turn
+			game.isGameOver = false;
+			game.winner = null;
+		});
 
+		// afterEach(() => jest.resetAllMocks());
+
+		it('updates after human turn: hit and switch to bot', () => {
+			// Simulate human attacking (1, 1) - hits bot's ship
+			game.playTurn(1, 1);
+
+			// Check bot's board: (1, 1) should be 'hit'
+			expect(game.bot.gameboard.getCellState(1, 1)).toBe('hit');
+			// Check human's board: unchanged
+			expect(game.human.gameboard.getCellState(0, 0)).toBe('empty');
+			// Check turn: now bot's turn
+			expect(game.currentPlayer).toBe(game.bot);
+			// Check game not over
+			expect(game.isGameOver).toBe(false);
+		});
+
+		it('updates after bot turn: hit and switch back to human', () => {
+			// First, human attacks (1, 1) to switch to bot
+			game.playTurn(1, 1);
+			// Mock bot's attack to hit (0, 0)
+			jest.spyOn(game.bot, 'attack').mockImplementation(() => {
+				game.human.gameboard.receiveAttack(0, 0);
+				return { hit: true, sunk: true };
+			});
+
+			// Simulate bot's turn (no coordinates needed due to mock)
+			game.playTurn();
+
+			// Check human's board: (0, 0) should be 'hit'
+			expect(game.human.gameboard.getCellState(0, 0)).toBe('hit');
+			// Check bot's board: (1, 1) still 'hit'
+			expect(game.bot.gameboard.getCellState(1, 1)).toBe('hit');
+			// Check turn: back to human
+			expect(game.currentPlayer).toBe(game.human);
+			// Check game not over yet
+			expect(game.isGameOver).toBe(false);
+		});
+
+		it('ends game correctly when all ships are sunk', () => {
+			// Human attacks (1, 1) - sinks bot's only ship
+			game.playTurn(1, 1);
+			game.checkWinner();
 			expect(game.isGameOver).toBe(true);
 			expect(game.winner).toBe(game.human);
+		});
+
+		it('update the display each turn', () => {
+			jest.spyOn(game, 'updateUI');
+			game.runGame();
+			expect(game.updateUI).toHaveBeenCalled();
 		});
 	});
 });

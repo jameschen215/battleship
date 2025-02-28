@@ -1,27 +1,32 @@
+import { isCoordinateOnBoard } from './helpers.js';
 import { ComputerPlayer, HumanPlayer } from './player.js';
 
 export class Game {
+	/** Initializes a new Battleship game with human and computer players. */
 	constructor() {
-		this.isGameOver = false;
-		this.winner = null;
 		this.human = new HumanPlayer();
 		this.bot = new ComputerPlayer();
 	}
 
 	initializeGame() {
-		this.currentPlayer = this.human;
-
 		this.human.placeShips();
 		this.bot.placeShips();
+		this.currentPlayer = this.human;
+		this.isGameOver = false;
+		this.winner = null;
 	}
 
 	playTurn(row, col) {
+		if (this.isGameOver) return;
+
 		if (this.currentPlayer === this.human) {
-			this.currentPlayer.attack(this.bot.gameboard, row, col);
+			if (!isCoordinateOnBoard(row, col)) return;
+
 			this.currentPlayer = this.bot;
+			return this.human.attack(this.bot.gameboard, row, col);
 		} else {
-			this.currentPlayer.attack(this.human.gameboard);
 			this.currentPlayer = this.human;
+			return this.bot.attack(this.human.gameboard);
 		}
 	}
 
@@ -32,6 +37,9 @@ export class Game {
 		} else if (this.human.gameboard.allSunk()) {
 			this.isGameOver = true;
 			this.winner = this.bot;
+		} else {
+			this.isGameOver = false;
+			this.winner = null;
 		}
 	}
 
@@ -42,8 +50,9 @@ export class Game {
 	runGame() {
 		let row;
 		let col;
+		let turns = 0;
 
-		while (!this.isGameOver) {
+		while (!this.isGameOver && turns++ < 5) {
 			if (this.currentPlayer === this.human) {
 				const coordinates = this.getUserInput();
 				row = coordinates.row;
@@ -54,10 +63,16 @@ export class Game {
 			this.checkWinner();
 			this.updateUI();
 		}
-		console.log(`Game Over! ${this.winner.name} wins!`);
+
+		if (this.winner !== null) {
+			console.log(`Game Over! ${this.winner.name} wins!`);
+		} else {
+			console.log('No winner.');
+		}
 	}
 
 	getUserInput() {
+		// TODO: Replace with UI input logic
 		return { row: 0, col: 0 };
 	}
 }

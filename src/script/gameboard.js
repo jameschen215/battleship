@@ -1,5 +1,6 @@
 import { Ship } from './ship';
 import { BOARD_SIZE } from './constants.js';
+import { isCoordinateOnBoard } from './helpers.js';
 
 export class Cell {
 	static STATES = ['empty', 'hit', 'miss'];
@@ -52,21 +53,8 @@ export class Gameboard {
 	}
 
 	placeShip(size, startRow, startCol, direction = 'horizontal') {
-		// if (args.length < 3 || args.length > 4) {
-		// 	throw new Error(
-		// 		'placeShip requires size, startRow, startCol, and an optional direction'
-		// 	);
-		// }
-
 		// Check if coordinates are out of bounds
-		if (
-			!Number.isInteger(startRow) ||
-			startRow < 0 ||
-			startRow >= BOARD_SIZE ||
-			!Number.isInteger(startCol) ||
-			startCol < 0 ||
-			startCol >= BOARD_SIZE
-		) {
+		if (!isCoordinateOnBoard(startRow, startCol)) {
 			return {
 				success: false,
 				reason: 'Coordinates are not invalid or out of board boundaries',
@@ -118,24 +106,14 @@ export class Gameboard {
 	}
 
 	receiveAttack(row, col) {
-		if (
-			!Number.isInteger(row) ||
-			!Number.isInteger(col) ||
-			row < 0 ||
-			row >= BOARD_SIZE ||
-			col < 0 ||
-			col >= BOARD_SIZE
-		) {
-			throw new Error(
-				`Coordinates must be integers between 0 and ${BOARD_SIZE - 1}`
-			);
+		if (!isCoordinateOnBoard(row, col)) {
+			return { hit: false, sunk: false, reason: 'invalid coordinate' };
 		}
 
 		const cell = this.#board[row][col];
 
 		if (cell.isAttacked()) {
-			return { hit: false, sunk: false };
-			// throw new Error('Cannot attack already attacked cells');
+			return { hit: false, sunk: false, reason: 'attacked' };
 		}
 
 		for (const { ship, positions } of this.#ships) {
@@ -159,14 +137,7 @@ export class Gameboard {
 	}
 
 	getCellState(row, col) {
-		if (
-			!Number.isInteger(row) ||
-			row < 0 ||
-			row >= BOARD_SIZE ||
-			!Number.isInteger(col) ||
-			col < 0 ||
-			col >= BOARD_SIZE
-		) {
+		if (!isCoordinateOnBoard(row, col)) {
 			throw new Error(
 				`Coordinates must be integers between 0 and ${BOARD_SIZE - 1}`
 			);
@@ -174,21 +145,11 @@ export class Gameboard {
 		return this.#board[row][col].state;
 	}
 
-	// reset() {
-	// 	this.#board = this.#createBoard();
-	// 	this.#ships = [];
-	// }
-
 	isCellAttacked(row, col) {
-		if (
-			!Number.isInteger(row) ||
-			!Number.isInteger(col) ||
-			row < 0 ||
-			row >= BOARD_SIZE ||
-			col < 0 ||
-			col >= BOARD_SIZE
-		) {
-			throw new Error('Coordinates must be integers between 0 and 9');
+		if (!isCoordinateOnBoard(row, col)) {
+			throw new Error(
+				`Coordinates must be integers between 0 and ${BOARD_SIZE - 1}`
+			);
 		}
 
 		return this.#board[row][col].state !== 'empty';

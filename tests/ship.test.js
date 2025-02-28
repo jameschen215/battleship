@@ -1,31 +1,25 @@
 import { Ship } from '../src/script/ship.js';
+import { MAX_SHIP_SIZE, MIN_SHIP_SIZE } from '../src/script/constants.js';
 
 describe('Ship', () => {
-	it('is a defined class', () => {
-		expect(Ship).toBeDefined();
-		expect(typeof Ship).toBe('function');
-	});
-
-	describe('Ship static properties', () => {
-		it('defines MIN_SIZE and MAX_SIZE', () => {
-			expect(Ship.MIN_SIZE).toBe(2);
-			expect(Ship.MAX_SIZE).toBe(5);
-		});
-	});
-
 	describe('constructor', () => {
+		it('is a defined class', () => {
+			expect(Ship).toBeDefined();
+			expect(typeof Ship).toBe('function');
+		});
+
 		it('throws errors for invalid size', () => {
 			expect(() => new Ship('2')).toThrow(
-				'Size must be an integer between 2 and 5'
+				`Size must be an integer between ${MIN_SHIP_SIZE} and ${MAX_SHIP_SIZE}`
 			);
 			expect(() => new Ship(3.5)).toThrow(
-				'Size must be an integer between 2 and 5'
+				`Size must be an integer between ${MIN_SHIP_SIZE} and ${MAX_SHIP_SIZE}`
 			);
 			expect(() => new Ship(0)).toThrow(
-				'Size must be an integer between 2 and 5'
+				`Size must be an integer between ${MIN_SHIP_SIZE} and ${MAX_SHIP_SIZE}`
 			);
 			expect(() => new Ship(6)).toThrow(
-				'Size must be an integer between 2 and 5'
+				`Size must be an integer between ${MIN_SHIP_SIZE} and ${MAX_SHIP_SIZE}`
 			);
 		});
 
