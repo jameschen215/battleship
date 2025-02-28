@@ -1,4 +1,5 @@
 import { Ship } from './ship';
+import { BOARD_SIZE } from './constants.js';
 
 export class Cell {
 	static STATES = ['empty', 'hit', 'miss'];
@@ -22,17 +23,10 @@ export class Cell {
 }
 
 export class Gameboard {
-	static BOARD_SIZE = 10;
 	static DIRECTIONS = ['horizontal', 'vertical'];
 
 	#board = this.#createBoard();
 	#ships = [];
-
-	constructor(...args) {
-		if (args.length > 0) {
-			throw new Error('Gameboard constructor requires no parameters');
-		}
-	}
 
 	get board() {
 		// Return a shallow copy to prevent direct mutation
@@ -47,9 +41,9 @@ export class Gameboard {
 	#createBoard() {
 		const board = [];
 
-		for (let row = 0; row < Gameboard.BOARD_SIZE; row++) {
+		for (let row = 0; row < BOARD_SIZE; row++) {
 			board[row] = [];
-			for (let col = 0; col < Gameboard.BOARD_SIZE; col++) {
+			for (let col = 0; col < BOARD_SIZE; col++) {
 				board[row][col] = new Cell();
 			}
 		}
@@ -68,10 +62,10 @@ export class Gameboard {
 		if (
 			!Number.isInteger(startRow) ||
 			startRow < 0 ||
-			startRow >= Gameboard.BOARD_SIZE ||
+			startRow >= BOARD_SIZE ||
 			!Number.isInteger(startCol) ||
 			startCol < 0 ||
-			startCol >= Gameboard.BOARD_SIZE
+			startCol >= BOARD_SIZE
 		) {
 			return {
 				success: false,
@@ -95,7 +89,7 @@ export class Gameboard {
 			let col = startCol + (direction === 'horizontal' ? i : 0);
 
 			// Ship placement exceeds board boundaries
-			if (row >= Gameboard.BOARD_SIZE || col >= Gameboard.BOARD_SIZE) {
+			if (row >= BOARD_SIZE || col >= BOARD_SIZE) {
 				return {
 					success: false,
 					reason: 'Ship placement exceeds board boundaries',
@@ -123,30 +117,25 @@ export class Gameboard {
 		return { success: true };
 	}
 
-	receiveAttack(...args) {
-		if (args.length !== 2) {
-			throw new Error('receiveAttack requires exactly two parameters');
-		}
-
-		const [row, col] = args;
-
+	receiveAttack(row, col) {
 		if (
 			!Number.isInteger(row) ||
 			!Number.isInteger(col) ||
 			row < 0 ||
-			row >= Gameboard.BOARD_SIZE ||
+			row >= BOARD_SIZE ||
 			col < 0 ||
-			col >= Gameboard.BOARD_SIZE
+			col >= BOARD_SIZE
 		) {
 			throw new Error(
-				`Coordinates must be integers between 0 and ${Gameboard.BOARD_SIZE - 1}`
+				`Coordinates must be integers between 0 and ${BOARD_SIZE - 1}`
 			);
 		}
 
 		const cell = this.#board[row][col];
 
 		if (cell.isAttacked()) {
-			throw new Error('Cannot attack already attacked cells');
+			return { hit: false, sunk: false };
+			// throw new Error('Cannot attack already attacked cells');
 		}
 
 		for (const { ship, positions } of this.#ships) {
@@ -173,31 +162,31 @@ export class Gameboard {
 		if (
 			!Number.isInteger(row) ||
 			row < 0 ||
-			row >= Gameboard.BOARD_SIZE ||
+			row >= BOARD_SIZE ||
 			!Number.isInteger(col) ||
 			col < 0 ||
-			col >= Gameboard.BOARD_SIZE
+			col >= BOARD_SIZE
 		) {
 			throw new Error(
-				`Coordinates must be integers between 0 and ${Gameboard.BOARD_SIZE - 1}`
+				`Coordinates must be integers between 0 and ${BOARD_SIZE - 1}`
 			);
 		}
 		return this.#board[row][col].state;
 	}
 
-	reset() {
-		this.#board = this.#createBoard();
-		this.#ships = [];
-	}
+	// reset() {
+	// 	this.#board = this.#createBoard();
+	// 	this.#ships = [];
+	// }
 
 	isCellAttacked(row, col) {
 		if (
 			!Number.isInteger(row) ||
 			!Number.isInteger(col) ||
 			row < 0 ||
-			row >= Gameboard.BOARD_SIZE ||
+			row >= BOARD_SIZE ||
 			col < 0 ||
-			col >= Gameboard.BOARD_SIZE
+			col >= BOARD_SIZE
 		) {
 			throw new Error('Coordinates must be integers between 0 and 9');
 		}

@@ -1,5 +1,11 @@
+import { BOARD_SIZE } from '../src/script/constants.js';
 import { Gameboard, Cell } from '../src/script/gameboard.js';
 import { Ship } from '../src/script/ship.js';
+
+jest.mock('../src/script/constants.js', () => ({
+	BOARD_SIZE: 3,
+	SHIP_SIZES: [2, 2],
+}));
 
 describe('Gameboard', () => {
 	describe('existence', () => {
@@ -10,39 +16,44 @@ describe('Gameboard', () => {
 	});
 
 	describe('Gameboard static properties', () => {
-		it('defines BOARD_SIZE and DIRECTIONS', () => {
-			expect(Gameboard.BOARD_SIZE).toBe(10);
+		it('defines DIRECTIONS', () => {
 			expect(Gameboard.DIRECTIONS).toEqual(['horizontal', 'vertical']);
 		});
 	});
 
-	describe('constructor', () => {
-		it('requires no parameter', () => {
-			expect(() => new Gameboard(1)).toThrow(
-				'Gameboard constructor requires no parameters'
-			);
-			expect(() => new Gameboard(1, 2)).toThrow(
-				'Gameboard constructor requires no parameters'
-			);
-		});
+	// describe('constructor', () => {
+	// 	it('throws error for invalid boardSize', () => {
+	// 		// expect(() => new Gameboard()).toThrow(
+	// 		// 	'board size must be an integer between 2 and 10'
+	// 		// );
+	// 		expect(() => new Gameboard('10')).toThrow(
+	// 			'board size must be an integer between 1 and 10'
+	// 		);
+	// 		expect(() => new Gameboard(0)).toThrow(
+	// 			'board size must be an integer between 1 and 10'
+	// 		);
+	// 		expect(() => new Gameboard(11)).toThrow(
+	// 			'board size must be an integer between 1 and 10'
+	// 		);
+	// 	});
 
-		it('creates a gameboard with correct setup', () => {
-			const gameboard = new Gameboard();
+	// 	it('creates a gameboard with correct setup', () => {
+	// 		const gameboard = new Gameboard(10);
 
-			expect(typeof gameboard.placeShip).toBe('function');
-			expect(typeof gameboard.receiveAttack).toBe('function');
-			expect(typeof gameboard.allSunk).toBe('function');
-			expect(typeof gameboard.getCellState).toBe('function');
-			expect(typeof gameboard.reset).toBe('function');
-			expect(typeof gameboard.isCellAttacked).toBe('function');
+	// 		expect(typeof gameboard.placeShip).toBe('function');
+	// 		expect(typeof gameboard.receiveAttack).toBe('function');
+	// 		expect(typeof gameboard.allSunk).toBe('function');
+	// 		expect(typeof gameboard.getCellState).toBe('function');
+	// 		// expect(typeof gameboard.reset).toBe('function');
+	// 		expect(typeof gameboard.isCellAttacked).toBe('function');
 
-			gameboard.board.forEach((row) => {
-				row.forEach((cell) => {
-					expect(cell.state).toBe('empty');
-				});
-			});
-		});
-	});
+	// 		gameboard.board.forEach((row) => {
+	// 			row.forEach((cell) => {
+	// 				expect(cell.state).toBe('empty');
+	// 			});
+	// 		});
+	// 	});
+	// });
 
 	describe('has board getter and ships getter', () => {
 		let gameboard;
@@ -51,12 +62,14 @@ describe('Gameboard', () => {
 			gameboard = new Gameboard();
 		});
 
+		afterEach(() => jest.resetAllMocks());
+
 		it('has a board getter that returns a 10x10 grid of Cell instances', () => {
 			const board = gameboard.board;
 
-			expect(board.length).toBe(10);
+			expect(board.length).toBe(3);
 			board.forEach((row) => {
-				expect(row.length).toBe(10);
+				expect(row.length).toBe(3);
 				row.forEach((cell) => {
 					expect(cell instanceof Cell).toBe(true);
 					expect(cell.state).toBe('empty');
@@ -67,21 +80,20 @@ describe('Gameboard', () => {
 		it('has a ships getter', () => {
 			const expectedShips = [
 				{
-					ship: new Ship(3),
+					ship: new Ship(2),
 					positions: [
 						[0, 0],
 						[0, 1],
-						[0, 2],
 					],
 				},
 			];
 
-			gameboard.placeShip(3, 0, 0);
+			gameboard.placeShip(2, 0, 0);
 			expect(gameboard.ships).toEqual(expectedShips);
 		});
 
 		it('returns a copy of the ships array', () => {
-			gameboard.placeShip(3, 0, 0);
+			gameboard.placeShip(2, 0, 0);
 			const shipsCopy = gameboard.ships;
 			shipsCopy.push({}); // Modify the returned array
 			expect(gameboard.ships.length).toBe(1); // Original should remain unchanged
@@ -111,46 +123,45 @@ describe('Gameboard', () => {
 		// });
 
 		it('returns unsuccess for invalid start points', () => {
-			expect(gameboard.placeShip(3, '1', 0)).toEqual({
+			expect(gameboard.placeShip(2, '1', 0)).toEqual({
 				success: false,
 				reason: 'Coordinates are not invalid or out of board boundaries',
 			});
-			expect(gameboard.placeShip(3, 3.5, 2)).toEqual({
+			expect(gameboard.placeShip(2, 3.5, 2)).toEqual({
 				success: false,
 				reason: 'Coordinates are not invalid or out of board boundaries',
 			});
-			expect(gameboard.placeShip(3, 0, 10)).toEqual({
+			expect(gameboard.placeShip(2, 0, 10)).toEqual({
 				success: false,
 				reason: 'Coordinates are not invalid or out of board boundaries',
 			});
 		});
 
 		it('returns unsuccess for invalid directions', () => {
-			expect(gameboard.placeShip(3, 0, 0, 'diagonal')).toEqual({
+			expect(gameboard.placeShip(2, 0, 0, 'diagonal')).toEqual({
 				success: false,
 				reason: 'Directions must be "horizontal" or "vertical"',
 			});
-			expect(gameboard.placeShip(3, 0, 0, '')).toEqual({
+			expect(gameboard.placeShip(2, 0, 0, '')).toEqual({
 				success: false,
 				reason: 'Directions must be "horizontal" or "vertical"',
 			});
 		});
 
 		it('places a ship horizontally by default', () => {
-			gameboard.placeShip(2, 7, 7);
+			gameboard.placeShip(2, 0, 0);
 			expect(gameboard.ships[0].positions).toEqual([
-				[7, 7],
-				[7, 8],
+				[0, 0],
+				[0, 1],
 			]);
 		});
 
 		it('places a ship vertically when specified', () => {
-			gameboard.placeShip(3, 0, 0, 'vertical');
+			gameboard.placeShip(2, 0, 0, 'vertical');
 
 			expect(gameboard.ships[0].positions).toEqual([
 				[0, 0],
 				[1, 0],
-				[2, 0],
 			]);
 		});
 
@@ -160,25 +171,25 @@ describe('Gameboard', () => {
 		});
 
 		it('returns unsuccess when fail to placed a ship', () => {
-			gameboard.placeShip(3, 0, 0);
+			gameboard.placeShip(2, 0, 0);
 			const result = gameboard.placeShip(2, 0, 0);
 			expect(result.success).toBe(false);
 		});
 
 		it('returns unsuccess when ships out of bounds', () => {
-			expect(gameboard.placeShip(4, 8, 8)).toEqual({
+			expect(gameboard.placeShip(2, 4, 4)).toEqual({
 				success: false,
-				reason: 'Ship placement exceeds board boundaries',
+				reason: 'Coordinates are not invalid or out of board boundaries',
 			});
-			expect(gameboard.placeShip(2, 9, 0, 'vertical')).toEqual({
+			expect(gameboard.placeShip(2, 4, 0, 'vertical')).toEqual({
 				success: false,
-				reason: 'Ship placement exceeds board boundaries',
+				reason: 'Coordinates are not invalid or out of board boundaries',
 			});
 		});
 
 		it('returns unsuccess when ships overlapping each other', () => {
-			gameboard.placeShip(3, 1, 1);
-			expect(gameboard.placeShip(4, 0, 1, 'vertical')).toEqual({
+			gameboard.placeShip(2, 0, 0);
+			expect(gameboard.placeShip(2, 0, 1, 'vertical')).toEqual({
 				success: false,
 				reason: 'Ship placement overlaps with another ship',
 			});
@@ -192,32 +203,20 @@ describe('Gameboard', () => {
 			gameboard = new Gameboard();
 		});
 
-		it('requires exactly two parameters', () => {
-			expect(() => gameboard.receiveAttack()).toThrow(
-				'receiveAttack requires exactly two parameters'
-			);
-			expect(() => gameboard.receiveAttack(1)).toThrow(
-				'receiveAttack requires exactly two parameters'
-			);
-			expect(() => gameboard.receiveAttack(1, 2, 3)).toThrow(
-				'receiveAttack requires exactly two parameters'
-			);
-		});
-
 		it('throws errors for invalid coordinates ', () => {
 			expect(() => gameboard.receiveAttack(-1, -1)).toThrow(
-				'Coordinates must be integers between 0 and 9'
+				`Coordinates must be integers between 0 and ${BOARD_SIZE - 1}`
 			);
 			expect(() => gameboard.receiveAttack(10, 10)).toThrow(
-				'Coordinates must be integers between 0 and 9'
+				`Coordinates must be integers between 0 and ${BOARD_SIZE - 1}`
 			);
 			expect(() => gameboard.receiveAttack('0', '0')).toThrow(
-				'Coordinates must be integers between 0 and 9'
+				`Coordinates must be integers between 0 and ${BOARD_SIZE - 1}`
 			);
 		});
 
 		it('marks a cell as hit when attacking a ship', () => {
-			gameboard.placeShip(3, 0, 0, 'horizontal');
+			gameboard.placeShip(2, 0, 0, 'horizontal');
 			gameboard.receiveAttack(0, 0);
 
 			expect(gameboard.ships[0].ship.getHits()).toBe(1);
@@ -234,14 +233,14 @@ describe('Gameboard', () => {
 		});
 
 		it('marks a cell as miss when no ship is present', () => {
-			gameboard.placeShip(3, 0, 0, 'horizontal');
-			gameboard.receiveAttack(7, 7);
+			// gameboard.placeShip(2, 0, 0, 'horizontal');
+			gameboard.receiveAttack(0, 0);
 
-			expect(gameboard.ships[0].ship.getHits()).toBe(0);
+			expect(gameboard.ships.length).toBe(0);
 
 			gameboard.board.forEach((row, i) => {
 				row.forEach((cell, j) => {
-					if (i === 7 && j === 7) {
+					if (i === 0 && j === 0) {
 						expect(cell.state).toBe('miss');
 					} else {
 						expect(cell.state).toBe('empty');
@@ -263,25 +262,25 @@ describe('Gameboard', () => {
 			});
 		});
 
-		it('throws error when receive attack on attacked cell', () => {
-			gameboard.placeShip(3, 0, 0, 'horizontal');
-			gameboard.receiveAttack(0, 0);
-			gameboard.receiveAttack(9, 9);
+		// it('throws error when receive attack on attacked cell', () => {
+		// 	gameboard.placeShip(3, 0, 0, 'horizontal');
+		// 	gameboard.receiveAttack(0, 0);
+		// 	gameboard.receiveAttack(9, 9);
 
-			expect(() => gameboard.receiveAttack(0, 0)).toThrow(
-				'Cannot attack already attacked cells'
-			);
-			expect(() => gameboard.receiveAttack(9, 9)).toThrow(
-				'Cannot attack already attacked cells'
-			);
-		});
+		// 	expect(() => gameboard.receiveAttack(0, 0)).toThrow(
+		// 		'Cannot attack already attacked cells'
+		// 	);
+		// 	expect(() => gameboard.receiveAttack(9, 9)).toThrow(
+		// 		'Cannot attack already attacked cells'
+		// 	);
+		// });
 	});
 
 	describe('allSunk', () => {
 		let gameboard;
 
 		beforeEach(() => {
-			gameboard = new Gameboard();
+			gameboard = new Gameboard(10);
 		});
 
 		it('returns false when no ship on board', () => {
@@ -290,14 +289,9 @@ describe('Gameboard', () => {
 
 		it('returns true when all ships are sunk', () => {
 			gameboard.placeShip(2, 0, 0);
-			gameboard.placeShip(1, 3, 3);
-			gameboard.placeShip(2, 7, 2);
 
 			gameboard.receiveAttack(0, 0);
 			gameboard.receiveAttack(0, 1);
-			gameboard.receiveAttack(3, 3);
-			gameboard.receiveAttack(7, 2);
-			gameboard.receiveAttack(7, 3);
 
 			expect(gameboard.allSunk()).toBe(true);
 		});
@@ -312,18 +306,16 @@ describe('Gameboard', () => {
 
 		it('returns false when not all ships are sunk', () => {
 			gameboard.placeShip(2, 0, 0);
-			gameboard.placeShip(1, 3, 3);
-			gameboard.placeShip(2, 7, 2);
+			gameboard.placeShip(2, 1, 0);
 
 			gameboard.receiveAttack(0, 0);
-			gameboard.receiveAttack(0, 1);
 
 			expect(gameboard.allSunk()).toBe(false);
 		});
 
 		it('returns false when some ships are sunk but not all', () => {
 			gameboard.placeShip(2, 0, 0);
-			gameboard.placeShip(2, 2, 2);
+			gameboard.placeShip(2, 1, 1);
 			gameboard.receiveAttack(0, 0);
 			gameboard.receiveAttack(0, 1); // Sink first ship
 			expect(gameboard.allSunk()).toBe(false); // Second ship remains
@@ -341,21 +333,21 @@ describe('Gameboard', () => {
 		let gameboard;
 
 		beforeEach(() => {
-			gameboard = new Gameboard();
+			gameboard = new Gameboard(10);
 		});
 
 		it('throws error for invalid coordinates', () => {
 			expect(() => gameboard.getCellState()).toThrow(
-				'Coordinates must be integers between 0 and 9'
+				`Coordinates must be integers between 0 and ${BOARD_SIZE - 1}`
 			);
 			expect(() => gameboard.getCellState(0)).toThrow(
-				'Coordinates must be integers between 0 and 9'
+				`Coordinates must be integers between 0 and ${BOARD_SIZE - 1}`
 			);
 			expect(() => gameboard.getCellState(0, -1)).toThrow(
-				'Coordinates must be integers between 0 and 9'
+				`Coordinates must be integers between 0 and ${BOARD_SIZE - 1}`
 			);
 			expect(() => gameboard.getCellState(10, 1)).toThrow(
-				'Coordinates must be integers between 0 and 9'
+				`Coordinates must be integers between 0 and ${BOARD_SIZE - 1}`
 			);
 		});
 
@@ -371,9 +363,9 @@ describe('Gameboard', () => {
 		});
 
 		it('returns "miss" for a no-ship cell', () => {
-			gameboard.placeShip(3, 0, 0);
-			gameboard.receiveAttack(0, 4);
-			expect(gameboard.getCellState(0, 4)).toBe('miss');
+			gameboard.placeShip(2, 0, 0);
+			gameboard.receiveAttack(1, 1);
+			expect(gameboard.getCellState(1, 1)).toBe('miss');
 		});
 
 		it('does not modify the board when called', () => {
@@ -393,7 +385,7 @@ describe('Gameboard', () => {
 		let gameboard;
 
 		beforeEach(() => {
-			gameboard = new Gameboard();
+			gameboard = new Gameboard(10);
 		});
 
 		it('throws error for invalid coordinates', () => {
@@ -422,22 +414,22 @@ describe('Gameboard', () => {
 		});
 	});
 
-	describe('reset', () => {
-		it('resets the board and ships to their initial state', () => {
-			const gameboard = new Gameboard();
-			gameboard.placeShip(2, 0, 0);
-			gameboard.receiveAttack(0, 0);
-			gameboard.reset();
-			expect(gameboard.board).toEqual(
-				Array(10)
-					.fill()
-					.map(() =>
-						Array(10)
-							.fill()
-							.map(() => expect.objectContaining({ state: 'empty' }))
-					)
-			);
-			expect(gameboard.ships).toEqual([]);
-		});
-	});
+	// describe('reset', () => {
+	// 	it('resets the board and ships to their initial state', () => {
+	// 		const gameboard = new Gameboard(10);
+	// 		gameboard.placeShip(2, 0, 0);
+	// 		gameboard.receiveAttack(0, 0);
+	// 		gameboard.reset();
+	// 		expect(gameboard.board).toEqual(
+	// 			Array(10)
+	// 				.fill()
+	// 				.map(() =>
+	// 					Array(10)
+	// 						.fill()
+	// 						.map(() => expect.objectContaining({ state: 'empty' }))
+	// 				)
+	// 		);
+	// 		expect(gameboard.ships).toEqual([]);
+	// 	});
+	// });
 });

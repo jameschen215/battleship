@@ -8,33 +8,24 @@ describe('Ship', () => {
 
 	describe('Ship static properties', () => {
 		it('defines MIN_SIZE and MAX_SIZE', () => {
-			expect(Ship.MIN_SIZE).toBe(1);
-			expect(Ship.MAX_SIZE).toBe(4);
+			expect(Ship.MIN_SIZE).toBe(2);
+			expect(Ship.MAX_SIZE).toBe(5);
 		});
 	});
 
 	describe('constructor', () => {
-		it('requires exactly one parameter', () => {
-			expect(() => new Ship()).toThrow(
-				'Ship constructor requires exactly one parameter'
-			);
-			expect(() => new Ship(2, 3)).toThrow(
-				'Ship constructor requires exactly one parameter'
-			);
-		});
-
 		it('throws errors for invalid size', () => {
 			expect(() => new Ship('2')).toThrow(
-				'Size must be an integer between 1 and 4'
+				'Size must be an integer between 2 and 5'
 			);
 			expect(() => new Ship(3.5)).toThrow(
-				'Size must be an integer between 1 and 4'
+				'Size must be an integer between 2 and 5'
 			);
 			expect(() => new Ship(0)).toThrow(
-				'Size must be an integer between 1 and 4'
+				'Size must be an integer between 2 and 5'
 			);
-			expect(() => new Ship(5)).toThrow(
-				'Size must be an integer between 1 and 4'
+			expect(() => new Ship(6)).toThrow(
+				'Size must be an integer between 2 and 5'
 			);
 		});
 

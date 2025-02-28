@@ -1,4 +1,5 @@
 import { Gameboard } from './gameboard.js';
+import { SHIP_SIZES, BOARD_SIZE } from './constants.js';
 
 export class Player {
 	/**
@@ -8,13 +9,13 @@ export class Player {
 		this.gameboard = new Gameboard();
 	}
 
-	placeShips(shipSizes) {
-		for (const size of shipSizes) {
+	placeShips() {
+		for (const size of SHIP_SIZES) {
 			let placed = false;
 
 			while (!placed) {
-				const row = Math.floor(Math.random() * Gameboard.BOARD_SIZE);
-				const col = Math.floor(Math.random() * Gameboard.BOARD_SIZE);
+				const row = Math.floor(Math.random() * BOARD_SIZE);
+				const col = Math.floor(Math.random() * BOARD_SIZE);
 				const direction = Math.random() < 0.5 ? 'horizontal' : 'vertical';
 				placed = this.gameboard.placeShip(size, row, col, direction).success;
 			}
@@ -27,9 +28,14 @@ export class Player {
 }
 
 export class HumanPlayer extends Player {
-	constructor(name = 'Unnamed') {
-		super();
-		this.name = name;
+	#name = 'Unnamed';
+
+	get name() {
+		return this.#name;
+	}
+
+	set name(newName) {
+		this.#name = newName;
 	}
 
 	attack(enemyBoard, row, col) {
@@ -42,9 +48,14 @@ export class HumanPlayer extends Player {
 }
 
 export class ComputerPlayer extends Player {
-	constructor() {
-		super();
-		this.name = 'Bot';
+	#name = 'Bot';
+
+	get name() {
+		return this.#name;
+	}
+
+	set name(newName) {
+		this.#name = newName;
 	}
 
 	attack(enemyBoard) {
@@ -56,8 +67,8 @@ export class ComputerPlayer extends Player {
 		let col;
 
 		do {
-			row = Math.floor(Math.random() * Gameboard.BOARD_SIZE);
-			col = Math.floor(Math.random() * Gameboard.BOARD_SIZE);
+			row = Math.floor(Math.random() * this.gameboard.board.length);
+			col = Math.floor(Math.random() * this.gameboard.board.length);
 		} while (enemyBoard.isCellAttacked(row, col));
 
 		return enemyBoard.receiveAttack(row, col);

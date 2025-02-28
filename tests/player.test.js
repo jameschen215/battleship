@@ -1,5 +1,11 @@
+import { BOARD_SIZE } from '../src/script/constants.js';
 import { Gameboard } from '../src/script/gameboard.js';
 import { Player, HumanPlayer, ComputerPlayer } from '../src/script/player.js';
+
+jest.mock('../src/script/constants.js', () => ({
+	BOARD_SIZE: 5,
+	SHIP_SIZES: [2, 3],
+}));
 
 describe('Player', () => {
 	describe('existence', () => {
@@ -10,51 +16,41 @@ describe('Player', () => {
 	});
 
 	describe('constructor', () => {
+		it('initializes with a Gameboard instance', () => {
+			const player = new Player();
+			expect(player.gameboard).toBeInstanceOf(Gameboard);
+			expect(player.gameboard.board.length).toBe(5);
+		});
+	});
+
+	describe('placeShips', () => {
 		let player;
 
 		beforeEach(() => {
 			player = new Player();
 		});
 
-		it('initializes with a Gameboard instance', () => {
-			expect(player.gameboard).toBeInstanceOf(Gameboard);
-			expect(player.gameboard.board.length).toBe(10);
-		});
-	});
-
-	describe('placeShips', () => {
-		let human;
-		let shipSizes;
-
-		beforeEach(() => {
-			human = new HumanPlayer('Tom');
-			shipSizes = [2, 3];
-		});
+		afterEach(() => jest.resetAllMocks());
 
 		it('places the correct number of ships', () => {
-			human.placeShips(shipSizes);
-			expect(human.gameboard.ships.length).toBe(2);
+			player.placeShips();
+			expect(player.gameboard.ships.length).toBe(2);
 		});
 
 		it('place ships of the correct sizes', () => {
-			human.placeShips(shipSizes);
-			const placedSizes = human.gameboard.ships
+			player.placeShips();
+			const placedSizes = player.gameboard.ships
 				.map(({ ship }) => ship.size)
 				.sort();
 
 			expect(placedSizes).toEqual([2, 3]);
-		});
-
-		it('handles an empty array', () => {
-			human.placeShips([]);
-			expect(human.gameboard.ships.length).toBe(0);
 		});
 	});
 
 	describe('attack', () => {
 		it('throws error when attack is called directly', () => {
 			const player = new Player();
-			const enemyBoard = new Gameboard();
+			const enemyBoard = new Gameboard(10);
 			expect(() => player.attack(enemyBoard, 0, 0)).toThrow(
 				'attack method must be implemented by subclass'
 			);
@@ -62,6 +58,7 @@ describe('Player', () => {
 	});
 });
 
+/** ------------------  HumanPlayer test ------------------ */
 describe('HumanPlayer', () => {
 	describe('existence', () => {
 		it('is a defined class extended from Player', () => {
@@ -73,11 +70,27 @@ describe('HumanPlayer', () => {
 
 	describe('constructor', () => {
 		it('initializes with a player name', () => {
-			const human1 = new HumanPlayer();
-			const human2 = new HumanPlayer('Tom');
+			const human = new HumanPlayer();
+			expect(human.name).toBe('Unnamed');
+		});
+	});
 
-			expect(human1.name).toBe('Unnamed');
-			expect(human2.name).toBe('Tom');
+	describe('has name getter and setter', () => {
+		let human;
+
+		beforeEach(() => {
+			human = new HumanPlayer();
+		});
+
+		afterEach(() => jest.resetAllMocks());
+
+		it('name getter returns a human name', () => {
+			expect(human.name).toBe('Unnamed');
+		});
+
+		it('name setter set a human name', () => {
+			human.name = 'Tom';
+			expect(human.name).toBe('Tom');
 		});
 	});
 
@@ -86,9 +99,11 @@ describe('HumanPlayer', () => {
 		let enemyBoard;
 
 		beforeEach(() => {
-			human = new HumanPlayer('Jerry');
+			human = new HumanPlayer();
 			enemyBoard = new Gameboard();
 		});
+
+		afterEach(() => jest.resetAllMocks());
 
 		it('should attack on an enemy board', () => {
 			expect(() => human.attack()).toThrow(
@@ -123,6 +138,7 @@ describe('HumanPlayer', () => {
 	});
 });
 
+/** ------------------  ComputerPlayer test ------------------ */
 describe('ComputerPlayer', () => {
 	describe('existence', () => {
 		it('is a defined class extended from Player', () => {
@@ -135,7 +151,6 @@ describe('ComputerPlayer', () => {
 	describe('constructor', () => {
 		it('initializes with a player name', () => {
 			const bot = new ComputerPlayer();
-
 			expect(bot.name).toBe('Bot');
 		});
 	});
@@ -150,10 +165,7 @@ describe('ComputerPlayer', () => {
 			enemyBoard.placeShip(2, 0, 0);
 		});
 
-		afterEach(() => {
-			// Clean up mocks after each test
-			jest.restoreAllMocks();
-		});
+		afterEach(() => jest.resetAllMocks());
 
 		it('should attack on an enemy board', () => {
 			expect(() => bot.attack()).toThrow(
@@ -175,17 +187,20 @@ describe('ComputerPlayer', () => {
 		});
 
 		it('attacks an empty unattacked cell and misses', () => {
-			// Mock Math.random to return 0.55, 0.55 -> (5, 5)
-			jest.spyOn(Math, 'random').mockReturnValue(0.55);
+			jest
+				.spyOn(Math, 'random')
+				.mockReturnValueOnce(0.4)
+				.mockReturnValueOnce(0.4);
 
 			const result = bot.attack(enemyBoard);
 			expect(result).toEqual({ hit: false, sunk: false });
-			expect(enemyBoard.getCellState(5, 5)).toBe('miss');
+			// 5 * 0.4 = 2
+			expect(enemyBoard.getCellState(2, 2)).toBe('miss');
 			expect(enemyBoard.ships[0].ship.getHits()).toBe(0);
 
 			enemyBoard.board.forEach((row, i) => {
 				row.forEach((cell, j) => {
-					if (i === 5 && j === 5) {
+					if (i === 2 && j === 2) {
 						expect(cell.state).toBe('miss');
 					} else {
 						expect(cell.state).toBe('empty');
@@ -195,12 +210,13 @@ describe('ComputerPlayer', () => {
 		});
 
 		it('attacks and sinks a ship', () => {
+			// Mock coordinates (0,0) and (0,1)
 			jest
 				.spyOn(Math, 'random')
-				.mockReturnValueOnce(0.05)
-				.mockReturnValueOnce(0.05)
-				.mockReturnValueOnce(0.05)
-				.mockReturnValueOnce(0.15);
+				.mockReturnValueOnce(0.05) // 0.05 * 5 = 0
+				.mockReturnValueOnce(0.05) // 0.05 * 5 = 0
+				.mockReturnValueOnce(0.05) // 0.05 * 5 = 0
+				.mockReturnValueOnce(0.25); // 0.25 * 5 = 1
 
 			bot.attack(enemyBoard);
 			const result = bot.attack(enemyBoard);
@@ -215,8 +231,8 @@ describe('ComputerPlayer', () => {
 				.spyOn(Math, 'random')
 				.mockReturnValueOnce(0.05)
 				.mockReturnValueOnce(0.05)
-				.mockReturnValueOnce(0.15)
-				.mockReturnValueOnce(0.15);
+				.mockReturnValueOnce(0.25)
+				.mockReturnValueOnce(0.25);
 
 			const result = bot.attack(enemyBoard);
 			expect(result).toEqual({ hit: false, sunk: false });
@@ -225,26 +241,27 @@ describe('ComputerPlayer', () => {
 		});
 
 		it('finds an unattacked cell on a nearly full board', () => {
-			// Mark all cells except (9, 9) as attacked
-			for (let row = 0; row < Gameboard.BOARD_SIZE; row++) {
-				for (let col = 0; col < Gameboard.BOARD_SIZE; col++) {
-					if (row !== 9 || col !== 9) {
+			// Mark all cells except (4, 4) as attacked
+			for (let row = 0; row < BOARD_SIZE; row++) {
+				for (let col = 0; col < BOARD_SIZE; col++) {
+					if (row !== 4 || col !== 4) {
 						enemyBoard.receiveAttack(row, col);
 					}
 				}
 			}
 
-			// Mock Math.random: first try (0, 0), then (9, 9)
+			// Mock Math.random: first try (0, 0), then (4, 4)
 			jest
 				.spyOn(Math, 'random')
 				.mockReturnValueOnce(0.05)
 				.mockReturnValueOnce(0.05)
-				.mockReturnValueOnce(0.95)
-				.mockReturnValueOnce(0.95);
+				.mockReturnValueOnce(0.81)
+				.mockReturnValueOnce(0.81);
 
 			const result = bot.attack(enemyBoard);
 			expect(result).toEqual({ hit: false, sunk: false });
-			expect(enemyBoard.getCellState(9, 9)).toBe('miss');
+
+			expect(enemyBoard.getCellState(4, 4)).toBe('miss');
 		});
 	});
 });

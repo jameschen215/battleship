@@ -1,14 +1,10 @@
 export class Ship {
-	static MIN_SIZE = 1;
-	static MAX_SIZE = 4;
+	static MIN_SIZE = 2;
+	static MAX_SIZE = 5;
 
 	#hits = 0;
 
 	constructor(size) {
-		if (arguments.length !== 1) {
-			throw new Error('Ship constructor requires exactly one parameter');
-		}
-
 		if (
 			!Number.isInteger(size) ||
 			size < Ship.MIN_SIZE ||
