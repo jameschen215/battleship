@@ -1,3 +1,33 @@
-h1 {
-	font-size: 4rem;
+@import url('https://fonts.googleapis.com/css2?family=Anton&family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap');
+:root {
+	--white: #fafafa;
+	--main-bg: #27272a;
+}
+html {
+	height: 100%;
+}
+
+body {
+	height: 100%;
+	color: var(--white);
+
+	font-family: 'Roboto Mono', monospace;
+	font-optical-sizing: auto;
+	font-weight: 400;
+	font-style: normal;
+	font-size: 1.6rem;
+}
+
+img {
+	height: auto;
+}
+
+.container {
+	height: 100%;
+	background-color: var(--main-bg);
+
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	align-items: center;
 }

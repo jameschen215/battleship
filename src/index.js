@@ -1,6 +1,11 @@
 import './style/reset.css';
 import './style/main.css';
 
-const container = document.querySelector('#container');
+import { Game } from './script/game.js';
 
-container.innerHTML = `<h1>Welcome to Battleship!</h1>`;
+import { updateUI } from './script/updateUI.js';
+
+const game = new Game();
+game.initializeGame();
+
+updateUI(game);

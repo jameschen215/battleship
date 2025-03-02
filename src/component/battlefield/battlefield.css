@@ -1,0 +1,17 @@
+.battlefields {
+	width: 100%;
+	display: flex;
+	justify-content: space-evenly;
+}
+
+.battlefield {
+	display: flex;
+}
+
+.ships-for-stats {
+	margin-top: 40px;
+}
+
+.board-container.bot {
+	margin-right: 30px;
+}

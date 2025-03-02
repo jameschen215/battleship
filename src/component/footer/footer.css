@@ -1,0 +1,26 @@
+:root {
+	--secondary: #9ca3af;
+}
+
+.footer {
+	width: 100%;
+	padding: 12px;
+	text-align: center;
+}
+
+.footer small {
+	color: var(--secondary);
+	font-size: 1.2rem;
+	font-weight: 300;
+}
+
+.footer small a {
+	color: inherit;
+	text-decoration: none;
+	font-weight: 600;
+	transition: color 200ms ease-in-out;
+}
+
+.footer a:hover {
+	color: var(--white);
+}
