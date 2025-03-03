@@ -1,6 +1,7 @@
 import './board.css';
 import { range } from '../../script/utils.js';
 import { ComputerPlayer } from '../../script/player.js';
+import { ShipComponent } from '../ship-component/ship-component.js';
 
 export function Board(board, player, currentPlayer) {
 	const cellContent = {
@@ -42,7 +43,7 @@ export function Board(board, player, currentPlayer) {
 	const boardDom = document.createElement('div');
 	boardDom.id = `${player instanceof ComputerPlayer ? 'bot' : 'human'}-board`;
 	boardDom.className = false ? 'board disabled' : 'board';
-	console.log(player.name, currentPlayer.name);
+
 	if (player instanceof ComputerPlayer) {
 		boardDom.addEventListener('click', clickHandler);
 	}
@@ -57,6 +58,16 @@ export function Board(board, player, currentPlayer) {
 			boardDom.appendChild(cellDom);
 		});
 	});
+
+	const ships = document.createElement('div');
+	ships.className = 'ships';
+	player.gameboard.ships.forEach(({ ship, positions }) => {
+		const shipComponent = ShipComponent(ship, positions);
+		ships.appendChild(shipComponent);
+	});
+
+	boardDom.appendChild(ships);
+
 	html.appendChild(boardDom);
 
 	const boardTitle = document.createElement('div');

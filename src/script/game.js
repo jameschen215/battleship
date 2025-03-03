@@ -1,6 +1,6 @@
 import { isCoordinateOnBoard } from './helpers.js';
 import { ComputerPlayer, HumanPlayer } from './player.js';
-import { updateUI } from './updateUI.js';
+import { display } from './display.js';
 
 export class Game {
 	/** Initializes a new Battleship game with human and computer players. */
@@ -44,7 +44,9 @@ export class Game {
 		}
 	}
 
-	updateUI() {}
+	updateUI() {
+		display(this);
+	}
 
 	runGame() {
 		let row;

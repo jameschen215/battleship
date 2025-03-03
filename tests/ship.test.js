@@ -23,10 +23,20 @@ describe('Ship', () => {
 			);
 		});
 
-		it('creates a ship with correct size', () => {
-			const ship = new Ship(3);
+		it('throws errors for invalid direction', () => {
+			expect(() => new Ship(3)).toThrow(
+				'Directions must be "horizontal" or "vertical"'
+			);
+			expect(() => new Ship(3, 'diagonal')).toThrow(
+				'Directions must be "horizontal" or "vertical"'
+			);
+		});
+
+		it('creates a ship with correct size and direction', () => {
+			const ship = new Ship(3, 'horizontal');
 
 			expect(ship.size).toBe(3);
+			expect(ship.direction).toBe('horizontal');
 			expect(typeof ship.hit).toBe('function');
 			expect(typeof ship.isSunk).toBe('function');
 		});
@@ -36,7 +46,7 @@ describe('Ship', () => {
 		let ship;
 
 		beforeEach(() => {
-			ship = new Ship(3);
+			ship = new Ship(3, 'horizontal');
 		});
 
 		it('increments hits by 1', () => {
@@ -58,7 +68,7 @@ describe('Ship', () => {
 		let ship;
 
 		beforeEach(() => {
-			ship = new Ship(3);
+			ship = new Ship(3, 'horizontal');
 		});
 
 		it('returns false when hits are less than size', () => {

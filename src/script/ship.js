@@ -1,9 +1,9 @@
-import { MAX_SHIP_SIZE, MIN_SHIP_SIZE } from './constants.js';
+import { MAX_SHIP_SIZE, MIN_SHIP_SIZE, SHIP_DIRECTIONS } from './constants.js';
 
 export class Ship {
 	#hits = 0;
 
-	constructor(size) {
+	constructor(size, direction) {
 		if (
 			!Number.isInteger(size) ||
 			size < MIN_SHIP_SIZE ||
@@ -14,7 +14,12 @@ export class Ship {
 			);
 		}
 
+		if (!SHIP_DIRECTIONS.includes(direction)) {
+			throw new Error('Directions must be "horizontal" or "vertical"');
+		}
+
 		this.size = size;
+		this.direction = direction;
 	}
 
 	getHits() {

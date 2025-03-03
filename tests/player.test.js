@@ -1,10 +1,11 @@
-import { BOARD_SIZE } from '../src/script/constants.js';
+import { BOARD_SIZE, SHIP_DIRECTIONS } from '../src/script/constants.js';
 import { Gameboard } from '../src/script/gameboard.js';
 import { Player, HumanPlayer, ComputerPlayer } from '../src/script/player.js';
 
 jest.mock('../src/script/constants.js', () => ({
 	BOARD_SIZE: 5,
 	SHIP_SIZES: [2, 3],
+	SHIP_DIRECTIONS: ['horizontal', 'vertical'],
 }));
 
 describe('Player', () => {

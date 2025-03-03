@@ -1,10 +1,11 @@
-import { BOARD_SIZE } from '../src/script/constants.js';
 import { Gameboard, Cell } from '../src/script/gameboard.js';
 import { Ship } from '../src/script/ship.js';
+import { BOARD_SIZE } from '../src/script/constants.js';
 
 jest.mock('../src/script/constants.js', () => ({
 	BOARD_SIZE: 3,
 	SHIP_SIZES: [2, 2],
+	SHIP_DIRECTIONS: ['horizontal', 'vertical'],
 }));
 
 describe('Gameboard', () => {
@@ -12,12 +13,6 @@ describe('Gameboard', () => {
 		it('is a defined class', () => {
 			expect(Gameboard).toBeDefined();
 			expect(typeof Gameboard).toBe('function');
-		});
-	});
-
-	describe('Gameboard static properties', () => {
-		it('defines DIRECTIONS', () => {
-			expect(Gameboard.DIRECTIONS).toEqual(['horizontal', 'vertical']);
 		});
 	});
 
@@ -46,7 +41,7 @@ describe('Gameboard', () => {
 		it('has a ships getter', () => {
 			const expectedShips = [
 				{
-					ship: new Ship(2),
+					ship: new Ship(2, 'horizontal'),
 					positions: [
 						[0, 0],
 						[0, 1],

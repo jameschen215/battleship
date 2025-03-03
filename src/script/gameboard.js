@@ -1,6 +1,7 @@
-import { Ship } from './ship';
-import { BOARD_SIZE } from './constants.js';
+import { BOARD_SIZE, SHIP_DIRECTIONS } from './constants.js';
 import { isCoordinateOnBoard } from './helpers.js';
+
+import { Ship } from './ship';
 
 export class Cell {
 	static STATES = ['empty', 'hit', 'miss'];
@@ -24,8 +25,6 @@ export class Cell {
 }
 
 export class Gameboard {
-	static DIRECTIONS = ['horizontal', 'vertical'];
-
 	#board = this.#createBoard();
 	#ships = [];
 
@@ -62,14 +61,14 @@ export class Gameboard {
 		}
 
 		// direction must be "horizontal" or "vertical"
-		if (!Gameboard.DIRECTIONS.includes(direction)) {
+		if (!SHIP_DIRECTIONS.includes(direction)) {
 			return {
 				success: false,
 				reason: 'Directions must be "horizontal" or "vertical"',
 			};
 		}
 
-		const ship = new Ship(size);
+		const ship = new Ship(size, direction);
 		const positions = [];
 
 		for (let i = 0; i < size; i++) {

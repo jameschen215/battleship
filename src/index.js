@@ -3,9 +3,11 @@ import './style/main.css';
 
 import { Game } from './script/game.js';
 
-import { updateUI } from './script/updateUI.js';
-
 const game = new Game();
 game.initializeGame();
 
-updateUI(game);
+game.updateUI();
+
+console.log(game.human.name);
+console.log(game.bot.name);
+console.log(game.currentPlayer.name);
