@@ -15,6 +15,7 @@ export class Game {
 		this.currentPlayer = this.human;
 		this.isGameOver = false;
 		this.winner = null;
+		this.isGameRunning = false;
 	}
 
 	playTurn(row, col) {
@@ -34,12 +35,15 @@ export class Game {
 	checkWinner() {
 		if (this.bot.gameboard.allSunk()) {
 			this.isGameOver = true;
+			this.isGameRunning = false;
 			this.winner = this.human;
 		} else if (this.human.gameboard.allSunk()) {
 			this.isGameOver = true;
+			this.isGameRunning = false;
 			this.winner = this.bot;
 		} else {
 			this.isGameOver = false;
+			this.isGameRunning = true;
 			this.winner = null;
 		}
 	}
@@ -53,7 +57,9 @@ export class Game {
 		let col;
 		let turns = 0;
 
-		while (!this.isGameOver && turns++ < 5) {
+		this.isGameRunning = true;
+
+		while (!this.isGameOver && turns++ < 100) {
 			if (this.currentPlayer === this.human) {
 				const coordinates = this.getUserInput();
 				row = coordinates.row;

@@ -33,6 +33,10 @@ export class Gameboard {
 		return this.#board.map((row) => [...row]);
 	}
 
+	set ships(newValue) {
+		this.#ships = newValue;
+	}
+
 	get ships() {
 		// Return a shallow copy to prevent direct mutation
 		return [...this.#ships];

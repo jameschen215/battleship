@@ -5,7 +5,6 @@ import { Game } from './script/game.js';
 
 const game = new Game();
 game.initializeGame();
-
 game.updateUI();
 
 console.log(game.human.name);

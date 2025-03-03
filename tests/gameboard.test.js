@@ -53,6 +53,12 @@ describe('Gameboard', () => {
 			expect(gameboard.ships).toEqual(expectedShips);
 		});
 
+		it('has a ships setter', () => {
+			gameboard.placeShip(2, 0, 0);
+			gameboard.ships = [];
+			expect(gameboard.ships).toEqual([]);
+		});
+
 		it('returns a copy of the ships array', () => {
 			gameboard.placeShip(2, 0, 0);
 			const shipsCopy = gameboard.ships;

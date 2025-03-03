@@ -9,9 +9,9 @@ export function App(game) {
 	const app = document.createElement('div');
 	app.className = 'app';
 
-	const header = Header();
+	const header = Header(game);
 	const battlefield = Battlefield(game);
-	const controls = Controls();
+	const controls = Controls(game);
 	const footer = Footer();
 
 	app.appendChild(header);

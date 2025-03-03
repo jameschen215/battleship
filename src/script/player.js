@@ -10,6 +10,7 @@ export class Player {
 	}
 
 	placeShips() {
+		this.gameboard.ships = [];
 		for (const size of SHIP_SIZES) {
 			let placed = false;
 

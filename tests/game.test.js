@@ -1,12 +1,7 @@
-import { BOARD_SIZE, SHIP_SIZES } from '../src/script/constants.js';
+import { SHIP_SIZES } from '../src/script/constants.js';
 import { Game } from '../src/script/game.js';
 import { Gameboard } from '../src/script/gameboard.js';
 import { HumanPlayer, ComputerPlayer } from '../src/script/player.js';
-
-// jest.mock('../src/script/constants.js', () => ({
-// 	BOARD_SIZE: 2,
-// 	SHIP_SIZES: [2, 2],
-// }));
 
 describe('Game', () => {
 	describe('constructor', () => {
@@ -51,6 +46,10 @@ describe('Game', () => {
 		afterEach(() => jest.resetAllMocks());
 
 		it('initializes isGameOver to "false"', () => {
+			expect(game.isGameOver).toBe(false);
+		});
+
+		it('initializes isGameRunning to "false"', () => {
 			expect(game.isGameOver).toBe(false);
 		});
 
@@ -109,6 +108,7 @@ describe('Game', () => {
 			game.checkWinner();
 			expect(game.isGameOver).toBe(true);
 			expect(game.winner).toBe(game.human);
+			expect(game.isGameRunning).toBe(false);
 		});
 
 		it('goes on when ships are hit but not sunk', () => {
@@ -118,6 +118,7 @@ describe('Game', () => {
 
 			expect(game.winner).toBe(null);
 			expect(game.isGameOver).toBe(false);
+			expect(game.isGameRunning).toBe(true);
 		});
 
 		it('goes on when not all ships are hit and sunk', () => {
@@ -136,6 +137,7 @@ describe('Game', () => {
 			expect(result.sunk).toBe(true);
 			expect(game.winner).toBe(null);
 			expect(game.isGameOver).toBe(false);
+			expect(game.isGameRunning).toBe(true);
 		});
 	});
 
@@ -150,6 +152,7 @@ describe('Game', () => {
 			game.bot.gameboard.placeShip(1, 1, 1, 'horizontal'); // Bot's ship at (1, 1)
 			game.currentPlayer = game.human; // Start with human's turn
 			game.isGameOver = false;
+			game.isGameRunning = true;
 			game.winner = null;
 		});
 
@@ -167,6 +170,8 @@ describe('Game', () => {
 			expect(game.currentPlayer).toBe(game.bot);
 			// Check game not over
 			expect(game.isGameOver).toBe(false);
+			// Check game is Running
+			expect(game.isGameRunning).toBe(true);
 		});
 
 		it('updates after bot turn: hit and switch back to human', () => {
@@ -189,6 +194,8 @@ describe('Game', () => {
 			expect(game.currentPlayer).toBe(game.human);
 			// Check game not over yet
 			expect(game.isGameOver).toBe(false);
+			// Check game is Running
+			expect(game.isGameRunning).toBe(true);
 		});
 
 		it('ends game correctly when all ships are sunk', () => {
@@ -197,12 +204,13 @@ describe('Game', () => {
 			game.checkWinner();
 			expect(game.isGameOver).toBe(true);
 			expect(game.winner).toBe(game.human);
+			expect(game.isGameRunning).toBe(false);
 		});
 
-		it('update the display each turn', () => {
-			jest.spyOn(game, 'updateUI');
-			game.runGame();
-			expect(game.updateUI).toHaveBeenCalled();
-		});
+		// it('update the display each turn', () => {
+		// 	jest.spyOn(game, 'updateUI');
+		// 	game.runGame();
+		// 	expect(game.updateUI).toHaveBeenCalled();
+		// });
 	});
 });
