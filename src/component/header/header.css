@@ -34,11 +34,10 @@
 }
 
 .game-info .message {
-	width: 75%;
-	min-width: 50%;
+	width: 50%;
 	text-align: center;
-	background-color: rgba(255, 255, 255, 0.03);
-	box-shadow: 0 3px 5px rgba(0, 0, 0, 0.05);
+	background-color: rgba(0, 0, 0, 0.15);
+	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.35);
 	padding: 8px;
 	border-radius: 4px;
 }

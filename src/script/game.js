@@ -1,4 +1,5 @@
 import { isCoordinateOnBoard } from './helpers.js';
+import { getRandomInt } from './utils.js';
 import { ComputerPlayer, HumanPlayer } from './player.js';
 import { display } from './display.js';
 
@@ -7,29 +8,47 @@ export class Game {
 	constructor() {
 		this.human = new HumanPlayer();
 		this.bot = new ComputerPlayer();
+		this.handleClick = this.handleClick.bind(this);
 	}
 
 	initializeGame() {
+		this.human.gameboard.setBoard();
+		this.bot.gameboard.setBoard();
 		this.human.placeShips();
 		this.bot.placeShips();
 		this.currentPlayer = this.human;
 		this.isGameOver = false;
 		this.winner = null;
 		this.isGameRunning = false;
+		this.coordinateResolve = null;
 	}
 
-	playTurn(row, col) {
+	// Delay function for bot thinking
+	delay() {
+		return new Promise((resolve) =>
+			setTimeout(resolve, getRandomInt(250, 3000))
+		);
+	}
+
+	switchTurn() {
+		this.currentPlayer =
+			this.currentPlayer === this.human ? this.bot : this.human;
+	}
+
+	async playTurn(row, col) {
 		if (this.isGameOver) return;
 
 		if (this.currentPlayer === this.human) {
 			if (!isCoordinateOnBoard(row, col)) return;
-
-			this.currentPlayer = this.bot;
-			return this.human.attack(this.bot.gameboard, row, col);
+			this.human.attack(this.bot.gameboard, row, col);
 		} else {
-			this.currentPlayer = this.human;
-			return this.bot.attack(this.human.gameboard);
+			console.log('Computer is thinking...');
+			await this.delay();
+			this.bot.attack(this.human.gameboard);
+			console.log('Computer has attacked');
 		}
+
+		this.switchTurn();
 	}
 
 	checkWinner() {
@@ -52,26 +71,29 @@ export class Game {
 		display(this);
 	}
 
-	runGame() {
-		let row;
-		let col;
-		let turns = 0;
-
+	async runGame() {
+		// let turns = 0;
 		this.isGameRunning = true;
 
-		while (!this.isGameOver && turns++ < 100) {
+		while (!this.isGameOver) {
 			if (this.currentPlayer === this.human) {
-				const coordinates = this.getUserInput();
-				row = coordinates.row;
-				col = coordinates.col;
+				try {
+					const { row, col } = await this.getUserInput();
+					this.playTurn(row, col);
+				} catch (error) {
+					console.log(error);
+					continue;
+				}
+			} else {
+				await this.playTurn();
 			}
 
-			this.playTurn(row, col);
 			this.checkWinner();
 			this.updateUI();
 		}
 
 		if (this.winner !== null) {
+			this.updateUI();
 			console.log(`Game Over! ${this.winner.name} wins!`);
 		} else {
 			console.log('No winner.');
@@ -79,7 +101,15 @@ export class Game {
 	}
 
 	getUserInput() {
-		// TODO: Replace with UI input logic
-		return { row: 0, col: 0 };
+		return new Promise((resolve) => {
+			this.coordinateResolve = resolve;
+		});
+	}
+
+	handleClick(row, col) {
+		if (this.coordinateResolve !== null) {
+			this.coordinateResolve({ row, col });
+			this.coordinateResolve = null;
+		}
 	}
 }

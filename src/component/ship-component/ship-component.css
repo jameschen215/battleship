@@ -10,6 +10,12 @@
 	opacity: 0;
 }
 
+.ship.sunk,
+#bot-board .ship.sunk {
+	border-color: red;
+	opacity: 1;
+}
+
 .ship-h {
 	height: 40px;
 }

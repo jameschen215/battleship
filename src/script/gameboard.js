@@ -25,8 +25,12 @@ export class Cell {
 }
 
 export class Gameboard {
-	#board = this.#createBoard();
+	#board = [];
 	#ships = [];
+
+	constructor() {
+		this.setBoard();
+	}
 
 	get board() {
 		// Return a shallow copy to prevent direct mutation
@@ -42,17 +46,13 @@ export class Gameboard {
 		return [...this.#ships];
 	}
 
-	#createBoard() {
-		const board = [];
-
+	setBoard() {
 		for (let row = 0; row < BOARD_SIZE; row++) {
-			board[row] = [];
+			this.#board[row] = [];
 			for (let col = 0; col < BOARD_SIZE; col++) {
-				board[row][col] = new Cell();
+				this.#board[row][col] = new Cell();
 			}
 		}
-
-		return board;
 	}
 
 	placeShip(size, startRow, startCol, direction = 'horizontal') {

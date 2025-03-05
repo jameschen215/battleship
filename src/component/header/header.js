@@ -30,6 +30,14 @@ export function Header(game) {
 	// Game info
 	let infoMsg = '';
 
+	if (game.isGameRunning === false) {
+		infoMsg = 'Place the ships.';
+	} else {
+		infoMsg = `${
+			game.currentPlayer instanceof HumanPlayer ? 'Your' : "Bot's"
+		} turn.`;
+	}
+
 	if (game.isGameOver) {
 		if (game.winner instanceof HumanPlayer) {
 			infoMsg = 'Game over. You win!';
@@ -38,14 +46,6 @@ export function Header(game) {
 		} else {
 			('Game over. No winner.');
 		}
-	}
-
-	if (game.isGameRunning === false) {
-		infoMsg = 'Place the ships.';
-	} else {
-		infoMsg = `${
-			game.currentPlayer instanceof HumanPlayer ? 'Your' : "Bot's"
-		} turn.`;
 	}
 
 	const gameInfo = document.createElement('div');

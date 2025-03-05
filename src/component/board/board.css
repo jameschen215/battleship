@@ -56,7 +56,19 @@
 	display: grid;
 	place-content: center;
 
-	transition: background-color 500ms ease;
+	transition: background-color 200ms ease;
+}
+
+.cell.hit,
+.cell.miss {
+	pointer-events: none;
+}
+
+.cell.hit {
+	color: red;
+}
+.cell.miss {
+	color: var(--disabled-color);
 }
 
 .cell:nth-child(10n) {
@@ -82,9 +94,10 @@
 }
 
 #bot-board.disabled .cell {
-	color: var(--disabled-color);
+	/* color: var(--disabled-color); */
 	border-color: var(--disabled-color);
 	background-color: var(--disabled-bg-color);
+	pointer-events: none;
 	cursor: default;
 }
 

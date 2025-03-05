@@ -9,10 +9,24 @@ jest.mock('../src/script/constants.js', () => ({
 }));
 
 describe('Gameboard', () => {
-	describe('existence', () => {
+	describe('constructor', () => {
 		it('is a defined class', () => {
 			expect(Gameboard).toBeDefined();
 			expect(typeof Gameboard).toBe('function');
+		});
+
+		it('set the board', () => {
+			const gameboard = new Gameboard();
+
+			expect(gameboard.board.length).toBe(3);
+
+			gameboard.board.forEach((row) => {
+				expect(row.length).toBe(3);
+				row.forEach((cell) => {
+					expect(cell instanceof Cell).toBe(true);
+					expect(cell.state).toBe('empty');
+				});
+			});
 		});
 	});
 

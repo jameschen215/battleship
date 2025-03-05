@@ -11,6 +11,10 @@ export function ShipComponent(ship, positions) {
 			? `ship ship-h h-${ship.size}`
 			: `ship ship-v v-${ship.size}`;
 
+	if (ship.isSunk()) {
+		shipComponent.classList.add('sunk');
+	}
+
 	shipComponent.style.top = startRow * CELL_SIZE + 'px';
 	shipComponent.style.left = startCol * CELL_SIZE + 'px';
 

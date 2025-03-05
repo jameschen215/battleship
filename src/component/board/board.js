@@ -1,9 +1,12 @@
 import './board.css';
 import { range } from '../../script/utils.js';
-import { ComputerPlayer } from '../../script/player.js';
+import { ComputerPlayer, HumanPlayer } from '../../script/player.js';
 import { ShipComponent } from '../ship-component/ship-component.js';
 
-export function Board(board, player, currentPlayer) {
+export function Board(game, player) {
+	const { isGameRunning, isGameOver, currentPlayer, handleClick } = game;
+	const board = player.gameboard.board;
+
 	const cellContent = {
 		hit: 'H',
 		miss: 'M',
@@ -22,7 +25,17 @@ export function Board(board, player, currentPlayer) {
 
 	// Cell event handler
 	const clickHandler = (event) => {
-		console.log(event.target.closest('div.cell').dataset.coordinate);
+		// Left-click only
+		if (event.type === 'click' && event.button === 0) {
+			const cellDom = event.target.closest('div.cell');
+
+			if (!cellDom || !cellDom.classList.contains('empty')) return;
+
+			const [row, col] = cellDom.dataset.coordinate.split(',').map(Number);
+
+			console.log(row, col);
+			handleClick(row, col);
+		}
 	};
 
 	const html = document.createElement('div');
@@ -42,7 +55,10 @@ export function Board(board, player, currentPlayer) {
 
 	const boardDom = document.createElement('div');
 	boardDom.id = `${player instanceof ComputerPlayer ? 'bot' : 'human'}-board`;
-	boardDom.className = false ? 'board disabled' : 'board';
+	boardDom.className =
+		(currentPlayer instanceof HumanPlayer && isGameRunning) || isGameOver
+			? 'board'
+			: 'board disabled';
 
 	if (player instanceof ComputerPlayer) {
 		boardDom.addEventListener('click', clickHandler);
@@ -51,7 +67,7 @@ export function Board(board, player, currentPlayer) {
 	board.forEach((row, i) => {
 		row.forEach((cell, j) => {
 			const cellDom = document.createElement('div');
-			cellDom.className = 'cell';
+			cellDom.className = `cell ${cell.state}`;
 			cellDom.dataset.coordinate = `${i},${j}`;
 			cellDom.innerHTML = cellContent[cell.state];
 

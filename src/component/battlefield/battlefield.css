@@ -4,6 +4,11 @@
 	justify-content: space-evenly;
 }
 
+.battlefields.disabled {
+	pointer-events: none;
+	filter: saturate(50%);
+}
+
 .battlefield {
 	display: flex;
 }

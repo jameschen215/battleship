@@ -4,22 +4,16 @@ import { Board } from '../board/board.js';
 import { StatShips } from '../stat-ships/stat-ships.js';
 
 export function Battlefield(game) {
-	const humanBoardContainer = Board(
-		game.human.gameboard.board,
-		game.human,
-		game.currentPlayer
-	);
-	const botBoardContainer = Board(
-		game.bot.gameboard.board,
-		game.bot,
-		game.currentPlayer
-	);
+	const humanBoardContainer = Board(game, game.human);
+	const botBoardContainer = Board(game, game.bot);
 
 	const humanStatShips = StatShips(game.human);
 	const botStatShips = StatShips(game.bot);
 
 	const battlefieldDom = document.createElement('div');
-	battlefieldDom.className = 'battlefields';
+	battlefieldDom.className = `battlefields ${
+		game.isGameOver ? 'disabled' : ''
+	}`;
 
 	// Human side
 	const humanSideDom = document.createElement('div');
