@@ -2,6 +2,7 @@
 	position: absolute;
 	border: 2px solid green;
 	background-color: rgba(255, 255, 255, 0.05);
+	transition: border-color 200ms ease;
 }
 
 #bot-board .ship {
