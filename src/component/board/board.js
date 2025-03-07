@@ -101,13 +101,14 @@ export function Board(game, player) {
 		event.preventDefault();
 
 		const shipId = event.dataTransfer.getData('text/plain');
+		const componentIndex = Number(
+			event.dataTransfer.getData('shipComponentIndex')
+		);
+
 		const shipDom = document.getElementById(shipId);
 		const shipDirection = shipDom.dataset.direction;
 		const shipIndex = Number(shipDom.dataset.index);
 		const shipSize = Number(shipDom.dataset.size);
-		const componentIndex = Number(
-			event.dataTransfer.getData('shipComponentIndex')
-		);
 
 		const dropX = event.clientX;
 		const dropY = event.clientY;

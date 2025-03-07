@@ -29,15 +29,17 @@ export function Ship(ship, positions, index) {
 				'shipComponentIndex',
 				clickedComponent.dataset.index
 			);
+		} else {
+			console.log('No drag component');
 		}
+	});
 
-		shipDom.addEventListener('drag', (event) => {
-			shipDom.style.pointerEvents = 'none';
-		});
+	shipDom.addEventListener('drag', (event) => {
+		shipDom.style.pointerEvents = 'none';
+	});
 
-		shipDom.addEventListener('dragend', (event) => {
-			shipDom.style.pointerEvents = 'auto';
-		});
+	shipDom.addEventListener('dragend', (event) => {
+		shipDom.style.pointerEvents = 'auto';
 	});
 
 	if (ship.isSunk()) {
