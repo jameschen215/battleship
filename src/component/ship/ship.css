@@ -1,0 +1,71 @@
+.ship {
+	position: absolute;
+	border: 1px solid green;
+	background-color: rgba(255, 255, 255, 0.05);
+	transition: border-color 200ms ease;
+}
+
+.ship.horizontal {
+	display: flex;
+}
+
+.ship.vertical {
+	display: flex;
+	flex-direction: column;
+}
+
+.ship.ship-2.horizontal {
+	width: 79px;
+	height: 39px;
+}
+
+.ship.ship-3.horizontal {
+	width: 119px;
+	height: 39px;
+}
+
+.ship.ship-4.horizontal {
+	width: 159px;
+	height: 39px;
+}
+.ship.ship-5.horizontal {
+	width: 199px;
+	height: 39px;
+}
+
+.ship.ship-2.vertical {
+	width: 39px;
+	height: 79px;
+}
+
+.ship.ship-3.vertical {
+	width: 39px;
+	height: 119px;
+}
+
+.ship.ship-4.vertical {
+	width: 39px;
+	height: 159px;
+}
+.ship.ship-5.vertical {
+	width: 39px;
+	height: 199px;
+}
+
+.ship-component {
+	width: auto;
+	height: auto;
+	background-color: rgba(0 0 0 / 0.2);
+}
+
+#bot-board .ship {
+	pointer-events: none;
+	background-color: transparent;
+	opacity: 0;
+}
+
+.ship.sunk,
+#bot-board .ship.sunk {
+	border-color: red;
+	opacity: 1;
+}
