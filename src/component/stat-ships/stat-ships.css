@@ -13,9 +13,9 @@
 .ship-for-stats-component {
 	width: 12px;
 	height: 12px;
-	background-color: rgba(255, 255, 255, 0.1);
+	background-color: var(--dark-gray);
 }
 
 .ship-for-stats.sunk .ship-for-stats-component {
-	background-color: red;
+	background-color: var(--red);
 }

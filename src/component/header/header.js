@@ -23,7 +23,7 @@ export function Header(game) {
 	const brandTitle = document.createElement('span');
 	brandTitle.className = 'brand-title';
 	brandTitle.textContent = 'Battleship';
-	brand.appendChild(logo);
+	// brand.appendChild(logo);
 	brand.appendChild(brandTitle);
 	header.appendChild(brand);
 

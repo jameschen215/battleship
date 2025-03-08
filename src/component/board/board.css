@@ -1,10 +1,3 @@
-:root {
-	--border-color: #0c4a6eaa;
-	--cell-bg-hover: #0c4a6e55;
-	--disabled-color: #52525b;
-	--disabled-bg-color: #52525b77;
-}
-
 .board-container {
 	display: grid;
 	grid-template-columns: 40px 400px;
@@ -35,6 +28,8 @@
 	display: grid;
 	place-items: center;
 	text-align: center;
+
+	font-weight: 500;
 }
 
 .board {
@@ -50,11 +45,12 @@
 .cell {
 	width: 40px;
 	height: 40px;
-	border-top: 1px solid var(--border-color);
-	border-left: 1px solid var(--border-color);
+	border-top: 1px solid var(--ocean-blue);
+	border-left: 1px solid var(--ocean-blue);
 	text-align: center;
-	display: grid;
-	place-content: center;
+	display: flex;
+	justify-content: center;
+	align-items: center;
 
 	transition: background-color 200ms ease;
 }
@@ -65,14 +61,16 @@
 }
 
 .cell.hit {
-	color: red;
+	color: var(--red);
 }
+
 .cell.miss {
-	color: var(--disabled-color);
+	color: var(--gray);
 }
 
 .cell:nth-child(10n) {
-	border-right: 1px solid var(--border-color);
+	border-right: 1px solid var(--ocean-blue);
+	width: 41px;
 }
 
 /*
@@ -85,22 +83,20 @@
  * otherwise, it would be 10 rows cells add 5 ships, i.e. 15
 **/
 .cell:nth-last-child(-n + 11) {
-	border-bottom: 1px solid var(--border-color);
+	border-bottom: 1px solid var(--ocean-blue);
+	height: 41px;
+}
+
+#bot-board .cell {
+	cursor: pointer;
 }
 
 #bot-board .cell:hover {
-	cursor: pointer;
-	background-color: var(--cell-bg-hover);
+	background-color: var(--ocean-blue-opacity);
 }
 
 #bot-board.disabled .cell {
-	/* color: var(--disabled-color); */
-	border-color: var(--disabled-color);
-	background-color: var(--disabled-bg-color);
+	border-color: var(--ocean-blue-opacity);
 	pointer-events: none;
-	cursor: default;
-}
-
-#bot-board.disabled .cell:hover {
-	background-color: var(--disabled-bg-color);
+	cursor: not-allowed;
 }

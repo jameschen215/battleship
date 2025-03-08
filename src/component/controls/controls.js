@@ -20,13 +20,17 @@ export function Controls(game) {
 	};
 
 	const randomButton = document.createElement('button');
-	randomButton.className = `random-btn ${game.isGameOver ? 'disabled' : ''}`;
+	randomButton.className = `random-btn ${
+		game.isGameOver || game.isGameRunning ? 'disabled' : ''
+	}`;
 	randomButton.innerHTML = 'Random';
 	randomButton.addEventListener('click', randomHandler);
 	controls.appendChild(randomButton);
 
 	const playButton = document.createElement('button');
-	playButton.className = `play-btn ${game.isGameOver ? 'disabled' : ''}`;
+	playButton.className = `play-btn ${
+		game.isGameOver || game.isGameRunning ? 'disabled' : ''
+	}`;
 	playButton.innerHTML = 'Play';
 	playButton.addEventListener('click', playHandler);
 	controls.appendChild(playButton);

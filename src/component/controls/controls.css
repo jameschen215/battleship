@@ -9,22 +9,24 @@
 button {
 	border: none;
 	outline: none;
-	padding: 8px 0;
+	padding: 6px 0;
 	width: 120px;
 
-	background-color: rgba(0, 0, 0, 0.15);
-	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.35);
-	color: var(--white);
+	background-color: transparent;
+	border: 1px solid rgba(0, 0, 0, 0.15);
+	/* border-radius: 4px; */
+	/* box-shadow: 0 2px 5px rgba(0, 0, 0, 0.35); */
+	/* color: var(--white); */
 	cursor: pointer;
-	border-radius: 4px;
 	font-size: 1.4rem;
 	font-weight: 600;
 
-	transition: color 200ms ease;
+	transition: color 200ms ease, border-color 200ms ease;
 }
 
 button:hover {
-	color: #facc15;
+	color: var(--primary);
+	border-color: var(--primary);
 }
 
 button.disabled {

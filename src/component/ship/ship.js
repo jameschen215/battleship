@@ -14,8 +14,8 @@ export function Ship(ship, positions, index) {
 	shipDom.dataset.startCoordinate = `${startRow},${startCol}`;
 	shipDom.draggable = true;
 
-	shipDom.style.top = startRow * CELL_SIZE + 1 + 'px';
-	shipDom.style.left = startCol * CELL_SIZE + 1 + 'px';
+	shipDom.style.top = startRow * CELL_SIZE + 2 + 'px';
+	shipDom.style.left = startCol * CELL_SIZE + 2 + 'px';
 
 	let clickedComponent = null;
 	shipDom.addEventListener('mousedown', (event) => {

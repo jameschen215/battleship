@@ -8,8 +8,8 @@ export function Board(game, player) {
 	const gameboard = player.gameboard;
 
 	const cellContent = {
-		hit: 'H',
-		miss: 'M',
+		hit: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>`,
+		miss: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-small"><circle cx="12" cy="12" r="6"/></svg>`,
 		empty: '',
 	};
 
@@ -27,7 +27,7 @@ export function Board(game, player) {
 	const shakeElement = (element, duration = 200, shakeDistance = 5) => {
 		element.style.transition = `transform ${duration / 4}ms ease-in-out`;
 		element.style.transform = `translateX(${shakeDistance}px)`;
-		element.style.borderColor = 'red';
+		// element.style.borderColor = 'red';
 
 		setTimeout(() => {
 			element.style.transform = `translateX(-${shakeDistance}px)`;
@@ -38,7 +38,7 @@ export function Board(game, player) {
 					setTimeout(() => {
 						element.style.transform = `translateX(0)`;
 						element.style.transition = ''; // Remove transition for future changes if needed.
-						element.style.borderColor = 'green'; // Remove transition for future changes if needed.
+						// element.style.borderColor = '#eab308'; // Remove transition for future changes if needed.
 					}, duration / 4);
 				}, duration / 4);
 			}, duration / 4);
@@ -174,6 +174,7 @@ export function Board(game, player) {
 	if (player instanceof ComputerPlayer) {
 		boardDom.addEventListener('click', clickHandler);
 	}
+
 	// Append cells
 	gameboard.board.forEach((row, i) => {
 		row.forEach((cell, j) => {
@@ -203,7 +204,7 @@ export function Board(game, player) {
 	const boardTitle = document.createElement('div');
 	boardTitle.className = 'board-title';
 	boardTitle.textContent =
-		player instanceof ComputerPlayer ? "Bot's grid" : 'Your grid';
+		player instanceof ComputerPlayer ? "BOT'S GRID" : 'YOUR GRID';
 	html.appendChild(boardTitle);
 
 	return html;
