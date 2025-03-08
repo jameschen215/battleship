@@ -1,8 +1,8 @@
 .ship {
 	position: absolute;
-	border: 2px solid var(--army-green);
+	border: 2px solid var(--primary);
 
-	background-color: var(--army-green-opacity);
+	background-color: var(--primary-opacity);
 
 	border-radius: 6px;
 	transition: border-color 200ms ease;
