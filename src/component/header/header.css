@@ -12,14 +12,7 @@
 	display: flex;
 	align-items: center;
 	gap: 12px;
-}
 
-.logo {
-	width: 24px;
-	height: 24px;
-}
-
-.brand-title {
 	font-family: 'Anton', sans-serif;
 	font-weight: 400;
 	font-style: normal;
@@ -37,11 +30,7 @@
 .game-info .message {
 	width: 50%;
 	text-align: center;
-	/* background-color: rgba(0, 0, 0, 0.035); */
-	/* border: 1px solid rgba(0, 0, 0, 0.1); */
 	border: 1px solid rgba(0, 0, 0, 0.15);
-	/* border-radius: 4px; */
-	/* box-shadow: inset 0px 0px 2px 1px rgba(0, 0, 0, 0.1); */
 	padding: 6px;
 }
 

@@ -3,25 +3,26 @@ import './stat-ships.css';
 import { range } from '../../script/utils.js';
 
 export function StatShips(player) {
-	const ships = document.createElement('div');
-	ships.className = `ships-for-stats`;
+	const statShips = document.createElement('div');
+	statShips.className = `ships-for-stats`;
+
 	player.gameboard.ships
 		.sort((a, b) => b.ship.size - a.ship.size)
-		.forEach(({ ship }) => ships.appendChild(StatShip(ship)));
+		.forEach(({ ship }) => statShips.appendChild(StatShip(ship)));
 
-	return ships;
+	return statShips;
 }
 
 function StatShip(ship) {
-	const shipDom = document.createElement('div');
-	shipDom.className = `ship-for-stats ${ship.isSunk() ? 'sunk' : ''}`;
+	const statShip = document.createElement('div');
+	statShip.className = `ship-for-stats ${ship.isSunk() ? 'sunk' : ''}`;
 
 	range(ship.size).forEach((_) => {
 		const component = document.createElement('div');
 		component.className = 'ship-for-stats-component';
 
-		shipDom.appendChild(component);
+		statShip.appendChild(component);
 	});
 
-	return shipDom;
+	return statShip;
 }

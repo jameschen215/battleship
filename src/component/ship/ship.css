@@ -1,6 +1,6 @@
 .ship {
 	position: absolute;
-	border: 4px solid var(--army-green);
+	border: 2px solid var(--army-green);
 
 	background-color: var(--army-green-opacity);
 

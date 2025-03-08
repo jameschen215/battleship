@@ -1,49 +1,23 @@
 import './board.css';
-import { range } from '../../script/utils.js';
+
+import { shakeElement } from '../../script/helpers.js';
+
 import { ComputerPlayer, HumanPlayer } from '../../script/player.js';
 import { Ship } from '../ship/ship.js';
+import { Cell } from '../cell/cell.js';
 
 export function Board(game, player) {
-	const { isGameRunning, isGameOver, currentPlayer, handleClick } = game;
 	const gameboard = player.gameboard;
+	const { isGameRunning, isGameOver, currentPlayer, handleClick, updateUI } =
+		game;
 
-	const cellContent = {
-		hit: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>`,
-		miss: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-small"><circle cx="12" cy="12" r="6"/></svg>`,
-		empty: '',
-	};
+	const container = document.createElement('div');
 
-	const labelNumbers = range(10).map((num) => num + 1);
-	const labelLetters = range(10).map((num) => String.fromCharCode(num + 65));
-
-	const topLabel = labelNumbers
-		.map((num) => `<div class="label">${num}</div>`)
-		.join('');
-	const sideLabel = labelLetters
-		.map((letter) => `<div class="label">${letter}</div>`)
-		.join('');
-
-	// Shake animation
-	const shakeElement = (element, duration = 200, shakeDistance = 5) => {
-		element.style.transition = `transform ${duration / 4}ms ease-in-out`;
-		element.style.transform = `translateX(${shakeDistance}px)`;
-		// element.style.borderColor = 'red';
-
-		setTimeout(() => {
-			element.style.transform = `translateX(-${shakeDistance}px)`;
-			setTimeout(() => {
-				element.style.transform = `translateX(${shakeDistance / 2}px)`;
-				setTimeout(() => {
-					element.style.transform = `translateX(-${shakeDistance / 2}px)`;
-					setTimeout(() => {
-						element.style.transform = `translateX(0)`;
-						element.style.transition = ''; // Remove transition for future changes if needed.
-						// element.style.borderColor = '#eab308'; // Remove transition for future changes if needed.
-					}, duration / 4);
-				}, duration / 4);
-			}, duration / 4);
-		}, duration / 4);
-	};
+	container.id = `${player instanceof ComputerPlayer ? 'bot' : 'human'}-board`;
+	container.className =
+		(currentPlayer instanceof HumanPlayer && isGameRunning) || isGameOver
+			? 'board'
+			: 'board disabled';
 
 	// Cell event handler
 	const clickHandler = (event) => {
@@ -55,7 +29,6 @@ export function Board(game, player) {
 
 			const [row, col] = cellDom.dataset.coordinate.split(',').map(Number);
 
-			console.log(row, col);
 			handleClick(row, col);
 		}
 	};
@@ -92,120 +65,29 @@ export function Board(game, player) {
 			gameboard.ships = originalShips;
 			shakeElement(event.currentTarget);
 		} else {
-			game.updateUI();
+			updateUI();
 		}
 	};
 
-	// Drop handler
-	const dropHandler = (event) => {
-		event.preventDefault();
-
-		const shipId = event.dataTransfer.getData('text/plain');
-		const componentIndex = Number(
-			event.dataTransfer.getData('shipComponentIndex')
-		);
-
-		const shipDom = document.getElementById(shipId);
-		const shipDirection = shipDom.dataset.direction;
-		const shipIndex = Number(shipDom.dataset.index);
-		const shipSize = Number(shipDom.dataset.size);
-
-		const dropX = event.clientX;
-		const dropY = event.clientY;
-		const cell = document.elementFromPoint(dropX, dropY).closest('div.cell');
-
-		if (cell) {
-			let endRow = null;
-			let endCol = null;
-
-			const [cellRow, cellCol] = cell.dataset.coordinate.split(',').map(Number);
-
-			if (shipDom.dataset.direction === 'horizontal') {
-				endRow = cellRow;
-				endCol = cellCol - componentIndex;
-			} else {
-				endRow = cellRow - componentIndex;
-				endCol = cellCol;
-			}
-
-			// Move ships:
-			// 1. Remove the ship from the array of ships.
-			const originalShips = gameboard.ships;
-			gameboard.ships = gameboard.ships.filter((_, i) => i !== shipIndex);
-
-			// 2. Place the ship on board again with a new coordinate.
-			const { success } = gameboard.placeShip(
-				shipSize,
-				endRow,
-				endCol,
-				shipDirection
-			);
-
-			// 3. If the placement fails,
-			// revert the array of ships to its original state.
-			if (!success) gameboard.ships = originalShips;
-
-			game.updateUI();
-		}
-	};
-
-	const html = document.createElement('div');
-	html.className = `board-container ${
-		player instanceof ComputerPlayer ? 'bot' : 'human'
-	}`;
-
-	const topLabelContainer = document.createElement('div');
-	topLabelContainer.className = 'top-label';
-	topLabelContainer.innerHTML = topLabel;
-	html.appendChild(topLabelContainer);
-
-	const sideLabelContainer = document.createElement('div');
-	sideLabelContainer.className = 'side-label';
-	sideLabelContainer.innerHTML = sideLabel;
-	html.appendChild(sideLabelContainer);
-
-	const boardDom = document.createElement('div');
-	boardDom.id = `${player instanceof ComputerPlayer ? 'bot' : 'human'}-board`;
-	boardDom.className =
-		(currentPlayer instanceof HumanPlayer && isGameRunning) || isGameOver
-			? 'board'
-			: 'board disabled';
-
+	// Add event handler to bot's board
 	if (player instanceof ComputerPlayer) {
-		boardDom.addEventListener('click', clickHandler);
+		container.addEventListener('click', clickHandler);
 	}
 
 	// Append cells
 	gameboard.board.forEach((row, i) => {
 		row.forEach((cell, j) => {
-			const cellDom = document.createElement('div');
-			cellDom.className = `cell ${cell.state}`;
-			cellDom.dataset.coordinate = `${i},${j}`;
-			cellDom.innerHTML = cellContent[cell.state];
-			cellDom.addEventListener('dragover', (e) => e.preventDefault());
-			cellDom.addEventListener('drop', dropHandler);
-			boardDom.appendChild(cellDom);
+			const cellDom = Cell(cell.state, i, j, gameboard, updateUI);
+			container.appendChild(cellDom);
 		});
 	});
 
 	// Place ships on board
-	const ships = document.createElement('div');
-	ships.className = 'ships';
 	gameboard.ships.forEach(({ ship, positions }, index) => {
 		const shipDom = Ship(ship, positions, index);
 		shipDom.addEventListener('click', rotateShipHandler);
-		ships.appendChild(shipDom);
+		container.appendChild(shipDom);
 	});
 
-	boardDom.appendChild(ships);
-
-	html.appendChild(boardDom);
-
-	const boardTitle = document.createElement('div');
-	boardTitle.className = 'board-title';
-	boardTitle.textContent =
-		player instanceof ComputerPlayer ? "BOT'S GRID" : 'YOUR GRID';
-	html.appendChild(boardTitle);
-
-	return html;
+	return container;
 }

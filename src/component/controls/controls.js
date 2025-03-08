@@ -20,7 +20,7 @@ export function Controls(game) {
 	};
 
 	const randomButton = document.createElement('button');
-	randomButton.className = `random-btn ${
+	randomButton.className = `btn ${
 		game.isGameOver || game.isGameRunning ? 'disabled' : ''
 	}`;
 	randomButton.innerHTML = 'Random';
@@ -28,7 +28,7 @@ export function Controls(game) {
 	controls.appendChild(randomButton);
 
 	const playButton = document.createElement('button');
-	playButton.className = `play-btn ${
+	playButton.className = `btn ${
 		game.isGameOver || game.isGameRunning ? 'disabled' : ''
 	}`;
 	playButton.innerHTML = 'Play';
@@ -36,7 +36,7 @@ export function Controls(game) {
 	controls.appendChild(playButton);
 
 	const restartButton = document.createElement('button');
-	restartButton.className = 'restart-btn';
+	restartButton.className = 'btn';
 	restartButton.innerHTML = 'Restart';
 	restartButton.addEventListener('click', restartHandler);
 	controls.appendChild(restartButton);

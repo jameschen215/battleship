@@ -1,7 +1,5 @@
 import './header.css';
 
-import logoImage from '../../image/logo.png';
-
 import { ComputerPlayer, HumanPlayer } from '../../script/player.js';
 
 export function Header(game) {
@@ -11,20 +9,7 @@ export function Header(game) {
 	// Brand
 	const brand = document.createElement('div');
 	brand.className = 'brand';
-
-	const logo = document.createElement('div');
-	logo.className = 'logo';
-
-	const logoImg = document.createElement('img');
-	logoImg.src = logoImage;
-	logoImg.alt = 'Logo';
-	logo.appendChild(logoImg);
-
-	const brandTitle = document.createElement('span');
-	brandTitle.className = 'brand-title';
-	brandTitle.textContent = 'Battleship';
-	// brand.appendChild(logo);
-	brand.appendChild(brandTitle);
+	brand.textContent = 'Battleship';
 	header.appendChild(brand);
 
 	// Game info

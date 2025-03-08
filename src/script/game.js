@@ -9,6 +9,7 @@ export class Game {
 		this.human = new HumanPlayer();
 		this.bot = new ComputerPlayer();
 		this.handleClick = this.handleClick.bind(this);
+		this.updateUI = this.updateUI.bind(this);
 	}
 
 	initializeGame() {

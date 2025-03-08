@@ -34,10 +34,25 @@ export function Ship(ship, positions, index) {
 		}
 	});
 
+	/**
+	 * When drag starts, make ship ignore interactive pointer events,
+	 * or you cannot drop on cells which are under the ship itself.
+	 *
+	 * Example:
+	 * Say, you have a 3-component horizontal ship, and you click on the left
+	 * most component of the ship and drag it to one cell right, which is
+	 * always under the ship, so you can never drop the ship onto it. By setting
+	 * the ship's pointerEvents to 'none', you can interact with overlapped cells.
+	 */
 	shipDom.addEventListener('drag', (event) => {
 		shipDom.style.pointerEvents = 'none';
 	});
 
+	/**
+	 * Once an element's 'pointerEvents' are set to 'none', you cannot interact
+	 * with it, so to make the ship rotate by clicking on it, we have to make
+	 * it clickable again after dragging.
+	 */
 	shipDom.addEventListener('dragend', (event) => {
 		shipDom.style.pointerEvents = 'auto';
 	});

@@ -1,0 +1,9 @@
+.board-title {
+	grid-area: 3 / 1 / -1 / -1;
+	display: grid;
+	place-items: center;
+	text-align: center;
+
+	font-weight: 500;
+	font-size: 1.4rem;
+}

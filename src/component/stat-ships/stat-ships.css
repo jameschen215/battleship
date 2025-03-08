@@ -13,7 +13,7 @@
 .ship-for-stats-component {
 	width: 12px;
 	height: 12px;
-	background-color: var(--dark-gray);
+	background-color: var(--light-gray-2);
 }
 
 .ship-for-stats.sunk .ship-for-stats-component {

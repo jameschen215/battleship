@@ -1,102 +1,10 @@
-.board-container {
-	display: grid;
-	grid-template-columns: 40px 400px;
-	grid-template-rows: 40px 400px 64px;
-}
-
-.top-label,
-.side-label {
-	font-size: 1.6rem;
-	display: grid;
-	place-items: center;
-}
-
-.top-label {
-	grid-area: 1 / 2 / 2 / -1;
-	grid-template-rows: 40px;
-	grid-template-columns: repeat(10, 40px);
-}
-
-.side-label {
-	grid-area: 2 / 1 / -2 / 2;
-	grid-template-rows: repeat(10, 40px);
-	grid-template-columns: 40px;
-}
-
-.board-title {
-	grid-area: 3 / 1 / -1 / -1;
-	display: grid;
-	place-items: center;
-	text-align: center;
-
-	font-weight: 500;
-}
-
 .board {
 	grid-area: 2 / 2 / 3 / 3;
+
+	position: relative;
+
 	width: 400px;
 	display: grid;
 	grid-template-columns: repeat(10, 40px);
 	grid-template-rows: repeat(10, 40px);
-
-	position: relative;
-}
-
-.cell {
-	width: 40px;
-	height: 40px;
-	border-top: 1px solid var(--ocean-blue);
-	border-left: 1px solid var(--ocean-blue);
-	text-align: center;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-
-	transition: background-color 200ms ease;
-}
-
-.cell.hit,
-.cell.miss {
-	pointer-events: none;
-}
-
-.cell.hit {
-	color: var(--red);
-}
-
-.cell.miss {
-	color: var(--gray);
-}
-
-.cell:nth-child(10n) {
-	border-right: 1px solid var(--ocean-blue);
-	width: 41px;
-}
-
-/*
- * When you have 10 rows in parent,
- * you do (-n + 10);
- * When you have 11 rows in parent,
- * you do (-n + 11);
- * and so on.
- * I wrap ships into one div, so the row number is 10 + 1,
- * otherwise, it would be 10 rows cells add 5 ships, i.e. 15
-**/
-.cell:nth-last-child(-n + 11) {
-	border-bottom: 1px solid var(--ocean-blue);
-	height: 41px;
-}
-
-#bot-board .cell {
-	cursor: pointer;
-}
-
-#bot-board .cell:hover {
-	background-color: var(--ocean-blue-opacity);
-}
-
-#bot-board.disabled .cell {
-	border-color: var(--ocean-blue-opacity);
-	pointer-events: none;
-	cursor: not-allowed;
 }

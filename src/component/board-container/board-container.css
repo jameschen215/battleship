@@ -1,0 +1,5 @@
+.board-container {
+	display: grid;
+	grid-template-columns: 40px 400px;
+	grid-template-rows: 40px 400px 64px;
+}

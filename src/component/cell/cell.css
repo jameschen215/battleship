@@ -1,0 +1,62 @@
+.cell {
+	width: 40px;
+	height: 40px;
+	border-top: 1px solid var(--ocean-blue);
+	border-left: 1px solid var(--ocean-blue);
+	text-align: center;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+
+	transition: background-color 200ms ease;
+}
+
+.cell.hit,
+.cell.miss {
+	pointer-events: none;
+}
+
+.cell.hit {
+	color: var(--red);
+}
+
+.cell.miss {
+	color: var(--dark-gray);
+}
+
+.cell.miss svg {
+	width: 68%;
+	height: 68%;
+}
+
+.cell:nth-child(10n) {
+	border-right: 1px solid var(--ocean-blue);
+	width: 41px;
+}
+
+/*
+ * When you have 10 rows in parent,
+ * you do (-n + 10);
+ * When you have 11 rows in parent,
+ * you do (-n + 11);
+ * and so on.
+ * Inside board there would be 10 rows of cells add 5 ships, i.e. 15
+**/
+.cell:nth-last-child(-n + 15) {
+	border-bottom: 1px solid var(--ocean-blue);
+	height: 41px;
+}
+
+#bot-board .cell {
+	cursor: pointer;
+}
+
+#bot-board .cell:hover {
+	background-color: var(--ocean-blue-opacity);
+}
+
+#bot-board.disabled .cell {
+	border-color: var(--ocean-blue-opacity);
+	pointer-events: none;
+	cursor: not-allowed;
+}
