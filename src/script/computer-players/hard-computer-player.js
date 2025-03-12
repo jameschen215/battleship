@@ -1,26 +1,19 @@
-import { getRandomInt, shuffle } from './utils.js';
-import { isCoordinateOnBoard } from './helpers.js';
+/**
+ * ----------- HardComputerPlayer ----------
+ */
 
-import { Player } from './player.js';
-import { Gameboard } from './gameboard.js';
+import { getRandomInt, shuffle } from '../utils.js';
+import { isCoordinateOnBoard } from '../helpers.js';
 
-export class ComputerPlayer extends Player {
-	#name = 'Bot';
+import { Gameboard } from '../gameboard.js';
+import { ComputerPlayer } from './computer-player.js';
 
+export class HardComputerPlayer extends ComputerPlayer {
 	constructor() {
 		super();
-		this.resetHistory();
-	}
+		// Track sunk ships
+		this.sunkShips = [];
 
-	get name() {
-		return this.#name;
-	}
-
-	set name(newName) {
-		this.#name = newName;
-	}
-
-	resetHistory() {
 		// Track attacked cells
 		this.attackedCoordinates = new Set();
 
@@ -28,38 +21,68 @@ export class ComputerPlayer extends Player {
 		this.hitQueue = [];
 
 		// Save attacked ship's direction
-		this.attackedShipDirection = '';
+		this.attackingShipDirection = '';
 		this.rightwardOrDownward = true;
 		this.goBack = false;
 	}
 
-	getRandomAttackingCoordinate() {
-		/**
-		 * Generate attacking coordinates until you find the cell
-		 * that has not been attacked.
-		 */
+	resetHistory() {
+		this.sunkShips = [];
+		this.hitQueue = [];
+		this.attackedCoordinates = new Set();
+
+		this.attackingShipDirection = '';
+		this.rightwardOrDownward = true;
+		this.goBack = false;
+	}
+
+	getStartPointOfAShip(ship) {
+		if (ship.direction === 'horizontal') {
+			return ship.positions.sort((a, b) => a[1] - b[1])[0];
+		}
+
+		return ship.positions.sort((a, b) => a[0] - b[0])[0];
+	}
+
+	getSunkShipsBufferZone() {
+		const totalBuffer = [];
+
+		this.sunkShips.forEach((ship) => {
+			const [row, col] = this.getStartPointOfAShip(ship);
+			const buffer = Gameboard.getBufferZone(
+				row,
+				col,
+				ship.size,
+				ship.direction
+			);
+
+			totalBuffer.push(buffer);
+		});
+
+		return new Set(totalBuffer.flat().map((coord) => String(coord)));
+	}
+
+	getRandomCoordinate() {
 		let row = null;
 		let col = null;
+
+		const sunkShipBufferZone = this.getSunkShipsBufferZone();
 
 		do {
 			row = getRandomInt(0, 9);
 			col = getRandomInt(0, 9);
-		} while (this.attackedCoordinates.has(String([row, col])));
+		} while (
+			// this.attackedCoordinates.has(String([row, col])) ||
+			sunkShipBufferZone.has(String([row, col]))
+		);
+		console.log(sunkShipBufferZone);
+		console.log(sunkShipBufferZone.has(String([row, col])));
+		console.log({ row, col });
 
 		return { row, col };
 	}
 
 	attack(enemyBoard) {
-		if (!(enemyBoard instanceof Gameboard)) {
-			throw new Error('Must attack an enemy Gameboard instance');
-		}
-
-		const { row, col } = this.getRandomAttackingCoordinate();
-
-		return enemyBoard.receiveAttack(row, col);
-	}
-
-	smartAttack(enemyBoard) {
 		if (!(enemyBoard instanceof Gameboard)) {
 			throw new Error('Must attack an enemy Gameboard instance');
 		}
@@ -75,10 +98,10 @@ export class ComputerPlayer extends Player {
 				this.goBack = !this.goBack;
 			}
 
-			if (this.attackedShipDirection === 'horizontal') {
+			if (this.attackingShipDirection === 'horizontal') {
 				row = lastHit.row;
 				col = this.rightwardOrDownward ? lastHit.col + 1 : lastHit.col - 1;
-			} else if (this.attackedShipDirection === 'vertical') {
+			} else if (this.attackingShipDirection === 'vertical') {
 				row = this.rightwardOrDownward ? lastHit.row + 1 : lastHit.row - 1;
 				col = lastHit.col;
 			} else {
@@ -106,12 +129,12 @@ export class ComputerPlayer extends Player {
 				// If no valid adjacent cell, remove the hit one and try a random one
 				if (row === null) {
 					this.hitQueue.shift();
-					({ row, col } = this.getRandomAttackingCoordinate());
+					({ row, col } = this.getRandomCoordinate());
 				}
 			}
 		} else {
 			// If there are no hit cells, select a random one.
-			({ row, col } = this.getRandomAttackingCoordinate());
+			({ row, col } = this.getRandomCoordinate());
 		}
 
 		// Launch an attack at the specified coordinate and monitor the result.
@@ -128,25 +151,32 @@ export class ComputerPlayer extends Player {
 
 			// determine the hit ship's direction and rightward or downward
 			if (lastHit && row === lastHit.row) {
-				this.attackedShipDirection = 'horizontal';
+				this.attackingShipDirection = 'horizontal';
 				this.rightwardOrDownward = col - lastHit.col > 0;
 			} else if (lastHit && col === lastHit.col) {
-				this.attackedShipDirection = 'vertical';
+				this.attackingShipDirection = 'vertical';
 				this.rightwardOrDownward = row - lastHit.row > 0;
 			}
 
 			// Since hit, add the coordinate to hitQueue
 			this.hitQueue.push({ row, col });
 		} else if (result.sunk) {
-			// If ship sunk, clear related hits from queue
+			// If ship sunk, add it to sunkShips
+			this.sunkShips.push({
+				size: this.hitQueue.length,
+				direction: this.attackingShipDirection,
+				positions: this.hitQueue.map(({ row, col }) => [row, col]),
+			});
+
+			// then, clear related hits from queue
 			this.hitQueue = this.hitQueue.filter(
 				(hit) => hit.row !== row && hit.col !== col
 			);
 
-			// Reset the direction
-			this.attackedShipDirection = '';
+			// finally, reset the direction
+			this.attackingShipDirection = '';
 			this.rightwardOrDownward = true;
-		} else if (!result.hit && this.attackedShipDirection !== '') {
+		} else if (!result.hit && this.attackingShipDirection !== '') {
 			/**
 			 * If you go beyond the first or last component, return to
 			 * the first hit component and move in the opposite direction.

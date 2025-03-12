@@ -1,6 +1,7 @@
 import './header.css';
 
-import { ComputerPlayer, HumanPlayer } from '../../script/player.js';
+import { ComputerPlayer } from '../../script/computer-players/computer-player.js';
+import { HumanPlayer } from '../../script/human-player.js';
 
 export function Header(game) {
 	const header = document.createElement('header');

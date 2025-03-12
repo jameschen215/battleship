@@ -1,13 +1,18 @@
-import { isCoordinateOnBoard } from './helpers.js';
 import { getRandomInt } from './utils.js';
-import { ComputerPlayer, HumanPlayer } from './player.js';
+import { isCoordinateOnBoard } from './helpers.js';
+
+import { HumanPlayer } from './human-player.js';
+import { EasyComputerPlayer } from './computer-players/easy-computer-player.js';
+import { NormalComputerPlayer } from './computer-players/normal-computer-player.js';
+import { HardComputerPlayer } from './computer-players/hard-computer-player.js';
+
 import { display } from './display.js';
 
 export class Game {
 	/** Initializes a new Battleship game with human and computer players. */
 	constructor() {
 		this.human = new HumanPlayer();
-		this.bot = new ComputerPlayer();
+		this.bot = new NormalComputerPlayer();
 		this.handleClick = this.handleClick.bind(this);
 		this.updateUI = this.updateUI.bind(this);
 	}
@@ -24,6 +29,16 @@ export class Game {
 		this.winner = null;
 		this.isGameRunning = false;
 		this.coordinateResolve = null;
+	}
+
+	setDifficulty(desc) {
+		if (desc === 'easy') {
+			this.bot = new EasyComputerPlayer();
+		} else if (desc === 'hard') {
+			this.bot = new HardComputerPlayer();
+		} else {
+			this.bot = new NormalComputerPlayer();
+		}
 	}
 
 	// Delay function for bot thinking

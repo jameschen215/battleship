@@ -1,7 +1,7 @@
-import { Player } from '../src/script/player.js';
+import { Player } from '../../src/script/player.js';
 import { ComputerPlayer } from '../src/script/computer-player.js';
-import { Gameboard } from '../src/script/gameboard.js';
-import * as utils from '../src/script/utils.js';
+import { Gameboard } from '../../src/script/gameboard.js';
+import * as utils from '../../src/script/utils.js';
 
 jest.mock('../src/script/constants.js', () => ({
 	BOARD_SIZE: 10,

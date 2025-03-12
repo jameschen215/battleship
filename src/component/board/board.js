@@ -2,7 +2,9 @@ import './board.css';
 
 import { shakeElement } from '../../script/helpers.js';
 
-import { ComputerPlayer, HumanPlayer } from '../../script/player.js';
+import { ComputerPlayer } from '../../script/computer-players/computer-player.js';
+import { HumanPlayer } from '../../script/human-player.js';
+
 import { Ship } from '../ship/ship.js';
 import { Cell } from '../cell/cell.js';
 

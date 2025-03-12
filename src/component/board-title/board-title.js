@@ -1,6 +1,6 @@
 import './board-title.css';
 
-import { ComputerPlayer } from '../../script/player.js';
+import { ComputerPlayer } from '../../script/computer-players/computer-player.js';
 
 export function BoardTitle(player) {
 	const container = document.createElement('div');

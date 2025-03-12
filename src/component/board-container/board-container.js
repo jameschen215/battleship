@@ -1,6 +1,6 @@
 import './board-container.css';
 
-import { ComputerPlayer } from '../../script/player.js';
+import { ComputerPlayer } from '../../script/computer-players/computer-player.js';
 import { BoardLabel } from '../board-label/board-label.js';
 import { BoardTitle } from '../board-title/board-title.js';
 import { Board } from '../board/board.js';
