@@ -17,6 +17,8 @@ export class Game {
 		this.bot.gameboard.setBoard();
 		this.human.placeShips();
 		this.bot.placeShips();
+		this.bot.resetHistory();
+
 		this.currentPlayer = this.human;
 		this.isGameOver = false;
 		this.winner = null;
@@ -41,12 +43,13 @@ export class Game {
 
 		if (this.currentPlayer === this.human) {
 			if (!isCoordinateOnBoard(row, col)) return;
+
 			this.human.attack(this.bot.gameboard, row, col);
 		} else {
 			console.log('Computer is thinking...');
 			await this.delay();
-			this.bot.attack(this.human.gameboard);
-			console.log('Computer has attacked');
+			const { row: r, col: c } = this.bot.attack(this.human.gameboard);
+			console.log(`Computer attacked (${r}, ${c})`);
 		}
 
 		this.switchTurn();

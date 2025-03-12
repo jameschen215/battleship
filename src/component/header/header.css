@@ -27,6 +27,16 @@
 	align-items: center;
 }
 
+.game-info.win {
+	color: var(--primary);
+	font-weight: 900;
+}
+
+.game-info.lose {
+	color: var(--red);
+	font-weight: 900;
+}
+
 .game-info .message {
 	width: 50%;
 	text-align: center;

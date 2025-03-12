@@ -12,6 +12,9 @@ export function Header(game) {
 	brand.textContent = 'Battleship';
 	header.appendChild(brand);
 
+	const gameInfo = document.createElement('div');
+	gameInfo.className = 'game-info';
+
 	// Game info
 	let infoMsg = '';
 
@@ -26,15 +29,14 @@ export function Header(game) {
 	if (game.isGameOver) {
 		if (game.winner instanceof HumanPlayer) {
 			infoMsg = 'Game over. You win!';
+			gameInfo.className += ' win';
 		} else if (game.winner instanceof ComputerPlayer) {
 			infoMsg = 'Game over. You lose!';
+			gameInfo.className += ' lose';
 		} else {
 			('Game over. No winner.');
 		}
 	}
-
-	const gameInfo = document.createElement('div');
-	gameInfo.className = 'game-info';
 
 	const message = document.createElement('div');
 	message.className = 'message';

@@ -2,11 +2,12 @@
 	width: 100%;
 	display: flex;
 	justify-content: space-evenly;
+	transition: opacity 200ms ease;
 }
 
 .battlefields.disabled {
 	pointer-events: none;
-	filter: saturate(50%);
+	opacity: 0.8;
 }
 
 .battlefield {
