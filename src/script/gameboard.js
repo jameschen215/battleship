@@ -1,5 +1,5 @@
 import { BOARD_SIZE, SHIP_DIRECTIONS } from './constants.js';
-import { isCoordinateOnBoard } from './helpers.js';
+import { isCoordinateOnBoard, getBufferZone } from './helpers.js';
 
 import { Ship } from './ship';
 
@@ -55,28 +55,6 @@ export class Gameboard {
 		}
 	}
 
-	static getBufferZone(row, col, size, direction) {
-		const buffer = [];
-		const startRow = Math.max(0, row - 1);
-		const endRow = Math.min(
-			BOARD_SIZE - 1,
-			row + (direction === 'vertical' ? size : 1)
-		);
-		const startCol = Math.max(0, col - 1);
-		const endCol = Math.min(
-			BOARD_SIZE - 1,
-			col + (direction === 'horizontal' ? size : 1)
-		);
-
-		for (let r = startRow; r <= endRow; r++) {
-			for (let c = startCol; c <= endCol; c++) {
-				buffer.push([r, c]);
-			}
-		}
-
-		return buffer;
-	}
-
 	placeShip(size, startRow, startCol, direction = 'horizontal') {
 		// Check if coordinates are out of bounds
 		if (!isCoordinateOnBoard(startRow, startCol)) {
@@ -112,12 +90,9 @@ export class Gameboard {
 			// Check buffer zone overlap
 			const isOverLapping = this.#ships.some((shipObj) =>
 				shipObj.positions.some(([r, c]) =>
-					Gameboard.getBufferZone(
-						r,
-						c,
-						shipObj.ship.size,
-						shipObj.ship.direction
-					).some(([br, bc]) => br === row && bc === col)
+					getBufferZone(r, c, shipObj.ship.size, shipObj.ship.direction).some(
+						([br, bc]) => br === row && bc === col
+					)
 				)
 			);
 

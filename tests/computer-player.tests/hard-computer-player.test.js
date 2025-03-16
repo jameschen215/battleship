@@ -104,7 +104,7 @@ describe('HardComputerPlayer', () => {
 	});
 
 	describe('getRandomCoordinate', () => {
-		it('returns a coordinate not on ship buffer zone', () => {
+		beforeEach(() => {
 			bot.sunkShips.push({
 				size: 4,
 				direction: 'vertical',
@@ -115,38 +115,196 @@ describe('HardComputerPlayer', () => {
 					[5, 3],
 				],
 			});
+		});
 
+		afterEach(() => jest.resetAllMocks());
+
+		it('cannot return a coord that has been attacked', () => {
+			bot.attackedCoordinates.add(JSON.stringify([4, 4]));
+
+			jest
+				.spyOn(utils, 'getRandomInt')
+				.mockReturnValueOnce(4)
+				.mockReturnValueOnce(4)
+				.mockReturnValueOnce(0)
+				.mockReturnValueOnce(0);
+
+			expect(bot.getRandomCoordinate()).not.toEqual({ row: 4, col: 4 });
+		});
+
+		it('returns a coordinate not on ship buffer zone at the top left corner', () => {
 			// Mock several hits on buffer zone
 			jest
 				.spyOn(utils, 'getRandomInt')
 				.mockReturnValueOnce(1)
 				.mockReturnValueOnce(2)
-				.mockReturnValueOnce(1)
-				.mockReturnValueOnce(4)
-				.mockReturnValueOnce(6)
-				.mockReturnValueOnce(2)
-				.mockReturnValueOnce(6)
-				.mockReturnValueOnce(4);
+				.mockReturnValueOnce(9)
+				.mockReturnValueOnce(1);
 
 			expect(bot.getRandomCoordinate()).not.toEqual({ row: 1, col: 2 });
-			expect(bot.getRandomCoordinate()).not.toEqual({ row: 1, col: 4 });
-			expect(bot.getRandomCoordinate()).not.toEqual({ row: 6, col: 2 });
+		});
+
+		it('returns a coordinate not on ship buffer zone at the bottom right corner', () => {
+			// Mock several hits on buffer zone
+			jest
+				.spyOn(utils, 'getRandomInt')
+				.mockReturnValueOnce(6)
+				.mockReturnValueOnce(4)
+				.mockReturnValueOnce(9)
+				.mockReturnValueOnce(1);
+
 			expect(bot.getRandomCoordinate()).not.toEqual({ row: 6, col: 4 });
+		});
+
+		it('returns a coordinate not on ship buffer zone at the top right corner', () => {
+			// Mock several hits on buffer zone
+			jest
+				.spyOn(utils, 'getRandomInt')
+				.mockReturnValueOnce(1)
+				.mockReturnValueOnce(4)
+				.mockReturnValueOnce(9)
+				.mockReturnValueOnce(1);
+
+			expect(bot.getRandomCoordinate()).not.toEqual({ row: 1, col: 4 });
+		});
+
+		it('returns a coordinate not on ship buffer zone at the bottom left corner', () => {
+			// Mock several hits on buffer zone
+			jest
+				.spyOn(utils, 'getRandomInt')
+				.mockReturnValueOnce(6)
+				.mockReturnValueOnce(2)
+				.mockReturnValueOnce(9)
+				.mockReturnValueOnce(1);
+			expect(bot.getRandomCoordinate()).not.toEqual({ row: 6, col: 2 });
+		});
+
+		it('returns a coordinate not on ship buffer zone at left middle', () => {
+			// Mock several hits on buffer zone
+			jest
+				.spyOn(utils, 'getRandomInt')
+				.mockReturnValueOnce(3)
+				.mockReturnValueOnce(2)
+				.mockReturnValueOnce(9)
+				.mockReturnValueOnce(1);
+			expect(bot.getRandomCoordinate()).not.toEqual({ row: 3, col: 2 });
+		});
+
+		it('returns a coordinate not on ship buffer zone at top middle', () => {
+			// Mock several hits on buffer zone
+			jest
+				.spyOn(utils, 'getRandomInt')
+				.mockReturnValueOnce(1)
+				.mockReturnValueOnce(3)
+				.mockReturnValueOnce(9)
+				.mockReturnValueOnce(1);
+			expect(bot.getRandomCoordinate()).not.toEqual({ row: 1, col: 3 });
+		});
+
+		describe('returns a coordinate that has enough neighboring cells to accommodate the smallest remaining ship', () => {
+			it('does not return a coordinate that has not enough neighboring cells to accommodate a 2-component long ship', () => {
+				// Make a cell that has't neighbors whose state is empty
+				bot.attackedCoordinates.add(JSON.stringify([1, 7])); // Up
+				bot.attackedCoordinates.add(JSON.stringify([3, 7])); // Down
+				bot.attackedCoordinates.add(JSON.stringify([2, 6])); // Left
+				bot.attackedCoordinates.add(JSON.stringify([2, 8])); // Right
+
+				// Mock to get coordinate (2, 7)
+				jest
+					.spyOn(utils, 'getRandomInt')
+					.mockReturnValueOnce(2)
+					.mockReturnValueOnce(7)
+					.mockReturnValueOnce(1)
+					.mockReturnValueOnce(4)
+					.mockReturnValueOnce(0)
+					.mockReturnValueOnce(0);
+
+				expect(bot.getRandomCoordinate()).not.toEqual({ row: 2, col: 7 });
+			});
+
+			it('returns a coordinate that has enough neighboring cells to accommodate a 3-component long ship', () => {
+				// Make a cell that has't neighbors whose state is empty
+				bot.attackedCoordinates.add(JSON.stringify([3, 0])); // Up
+				bot.attackedCoordinates.add(JSON.stringify([4, 1])); // Right
+
+				// Mock to get coordinate (2, 7)
+				jest
+					.spyOn(utils, 'getRandomInt')
+					.mockReturnValueOnce(4)
+					.mockReturnValueOnce(0)
+					.mockReturnValueOnce(1)
+					.mockReturnValueOnce(4)
+					.mockReturnValueOnce(0)
+					.mockReturnValueOnce(0);
+
+				expect(bot.getRandomCoordinate()).toEqual({ row: 4, col: 0 });
+			});
 		});
 	});
 
-	// test attack
 	describe('attack', () => {
-		describe('parameter', () => {
-			it('should attack on enemy board', () => {
-				expect(() => bot.attack()).toThrow(
-					'Must attack an enemy Gameboard instance'
-				);
+		it('attacks and hits, but does not sink any ship', () => {
+			jest
+				.spyOn(utils, 'getRandomInt')
+				.mockReturnValueOnce(0)
+				.mockReturnValueOnce(0);
 
-				expect(() => bot.attack('board', 0, 0)).toThrow(
-					'Must attack an enemy Gameboard instance'
-				);
+			const expected = {
+				row: 0,
+				col: 0,
+				result: { hit: true, sunk: false },
+			};
+
+			const result = bot.attack(enemyBoard);
+			expect(result).toEqual(expected);
+		});
+
+		it('attacks, hits, and sinks a ship', () => {
+			jest
+				.spyOn(utils, 'getRandomInt')
+				.mockReturnValueOnce(0)
+				.mockReturnValueOnce(0);
+
+			jest.spyOn(utils, 'shuffle').mockReturnValue([
+				{ row: 0, col: 1 }, // Right, hit
+				{ row: 0, col: -1 },
+				{ row: 2, col: 0 },
+				{ row: -1, col: 0 },
+			]);
+
+			const expectedResults = [
+				{
+					row: 0,
+					col: 0,
+					result: { hit: true, sunk: false },
+				},
+				{
+					row: 0,
+					col: 1,
+					result: { hit: true, sunk: true },
+				},
+			];
+
+			expectedResults.forEach((expected) => {
+				const result = bot.attack(enemyBoard);
+				expect(result).toEqual(expected);
 			});
+		});
+
+		it('attacks at empty cells and misses', () => {
+			jest
+				.spyOn(utils, 'getRandomInt')
+				.mockReturnValueOnce(9)
+				.mockReturnValueOnce(0);
+
+			const expected = {
+				row: 9,
+				col: 0,
+				result: { hit: false, sunk: false },
+			};
+
+			const result = bot.attack(enemyBoard);
+			expect(result).toEqual(expected);
 		});
 	});
 });

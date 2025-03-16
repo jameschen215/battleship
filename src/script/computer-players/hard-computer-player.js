@@ -2,8 +2,13 @@
  * ----------- HardComputerPlayer ----------
  */
 
+import { SHIP_SIZES } from '../constants.js';
 import { getRandomInt, shuffle } from '../utils.js';
-import { isCoordinateOnBoard } from '../helpers.js';
+import {
+	isCoordinateOnBoard,
+	getSunkShipsBufferZone,
+	groupedSurroundingCoordinates,
+} from '../helpers.js';
 
 import { Gameboard } from '../gameboard.js';
 import { ComputerPlayer } from './computer-player.js';
@@ -11,6 +16,10 @@ import { ComputerPlayer } from './computer-player.js';
 export class HardComputerPlayer extends ComputerPlayer {
 	constructor() {
 		super();
+
+		// Track remaining ship's size
+		this.remainingShipSizes = SHIP_SIZES.slice();
+
 		// Track sunk ships
 		this.sunkShips = [];
 
@@ -27,57 +36,50 @@ export class HardComputerPlayer extends ComputerPlayer {
 	}
 
 	resetHistory() {
+		this.remainingShipSizes = SHIP_SIZES.slice();
 		this.sunkShips = [];
-		this.hitQueue = [];
 		this.attackedCoordinates = new Set();
+		this.hitQueue = [];
 
 		this.attackingShipDirection = '';
 		this.rightwardOrDownward = true;
 		this.goBack = false;
 	}
 
-	getStartPointOfAShip(ship) {
-		if (ship.direction === 'horizontal') {
-			return ship.positions.sort((a, b) => a[1] - b[1])[0];
-		}
-
-		return ship.positions.sort((a, b) => a[0] - b[0])[0];
+	// Get the smallest size of the remaining ships
+	getMinSizeOfShip() {
+		return Math.min(...this.remainingShipSizes);
 	}
 
-	getSunkShipsBufferZone() {
-		const totalBuffer = [];
+	isLongEnoughForShips(row, col, size) {
+		return groupedSurroundingCoordinates(row, col, size).some((group) =>
+			group.every(
+				(coord) => !this.attackedCoordinates.has(JSON.stringify(coord))
+			)
+		);
+	}
 
-		this.sunkShips.forEach((ship) => {
-			const [row, col] = this.getStartPointOfAShip(ship);
-			const buffer = Gameboard.getBufferZone(
-				row,
-				col,
-				ship.size,
-				ship.direction
-			);
+	isValidCoord(row, col) {
+		const sunkShipBufferZone = getSunkShipsBufferZone(this.sunkShips);
 
-			totalBuffer.push(buffer);
-		});
-
-		return new Set(totalBuffer.flat().map((coord) => String(coord)));
+		return (
+			isCoordinateOnBoard(row, col) &&
+			!this.attackedCoordinates.has(JSON.stringify([row, col])) &&
+			!sunkShipBufferZone.has(JSON.stringify([row, col]))
+		);
 	}
 
 	getRandomCoordinate() {
 		let row = null;
 		let col = null;
 
-		const sunkShipBufferZone = this.getSunkShipsBufferZone();
-
 		do {
 			row = getRandomInt(0, 9);
 			col = getRandomInt(0, 9);
 		} while (
-			// this.attackedCoordinates.has(String([row, col])) ||
-			sunkShipBufferZone.has(String([row, col]))
+			!this.isValidCoord(row, col) ||
+			!this.isLongEnoughForShips(row, col, this.getMinSizeOfShip())
 		);
-		console.log(sunkShipBufferZone);
-		console.log(sunkShipBufferZone.has(String([row, col])));
-		console.log({ row, col });
 
 		return { row, col };
 	}
@@ -90,21 +92,49 @@ export class HardComputerPlayer extends ComputerPlayer {
 		let row = null;
 		let col = null;
 
+		// If there are at least one or more cells that are hit before
 		if (this.hitQueue.length > 0) {
+			// get the last hit one
 			let lastHit = this.hitQueue.at(-1);
 
+			// If go along the direction and find an invalid cell and the ship
+			// isn't sunk, go back to the first hit cell and go the opposite direction
 			if (this.goBack) {
 				lastHit = this.hitQueue[0];
 				this.goBack = !this.goBack;
 			}
 
+			// If attack inline horizontally, choose the adjacent cell horizontally
 			if (this.attackingShipDirection === 'horizontal') {
+				// choose the left one if the direction is right to left,
+				// otherwise choose the right one
 				row = lastHit.row;
 				col = this.rightwardOrDownward ? lastHit.col + 1 : lastHit.col - 1;
+
+				// If the next cell is invalid, like attacked or on gap
+				if (!this.isValidCoord(row, col)) {
+					// Go back to the first hit cell and choose the adjacent cell on
+					// the opposite side horizontally
+					lastHit = this.hitQueue[0];
+					this.rightwardOrDownward = !this.rightwardOrDownward;
+					col = this.rightwardOrDownward ? lastHit.col + 1 : lastHit.col - 1;
+				}
 			} else if (this.attackingShipDirection === 'vertical') {
+				// If attack inline vertically, choose the adjacent cell vertically
+				// choose the downside one if the direction is up to down,
+				// otherwise choose the upside one
 				row = this.rightwardOrDownward ? lastHit.row + 1 : lastHit.row - 1;
 				col = lastHit.col;
+
+				if (!this.isValidCoord(row, col)) {
+					// Go back to the first hit cell and choose the adjacent cell on
+					// the opposite side vertically
+					lastHit = this.hitQueue[0];
+					this.rightwardOrDownward = !this.rightwardOrDownward;
+					row = this.rightwardOrDownward ? lastHit.row + 1 : lastHit.row - 1;
+				}
 			} else {
+				// If there are no cells inline, get a random neighbor of the last hit cell
 				const adjacentCells = [
 					{ row: lastHit.row + 1, col: lastHit.col }, // Up
 					{ row: lastHit.row - 1, col: lastHit.col }, // Down
@@ -113,27 +143,22 @@ export class HardComputerPlayer extends ComputerPlayer {
 				];
 
 				// Looking for a valid, un-attacked adjacent cell
-				for (const coordinate of shuffle(adjacentCells)) {
-					const key = String([coordinate.row, coordinate.col]);
-
-					if (
-						isCoordinateOnBoard(coordinate.row, coordinate.col) &&
-						!this.attackedCoordinates.has(key)
-					) {
-						// If the coordinate on board and un-attacked, get it
-						({ row, col } = coordinate);
+				for (const coord of shuffle(adjacentCells)) {
+					if (this.isValidCoord(coord.row, coord.col)) {
+						({ row, col } = coord);
 						break;
 					}
 				}
 
-				// If no valid adjacent cell, remove the hit one and try a random one
+				// If no valid adjacent cell, i.e. all neighbors are clicked or on buffer zone
+				// or on gap, remove the last hit one and try to choose an new random coordinate
 				if (row === null) {
 					this.hitQueue.shift();
 					({ row, col } = this.getRandomCoordinate());
 				}
 			}
 		} else {
-			// If there are no hit cells, select a random one.
+			// If there are no hit cells, select a random coordinate.
 			({ row, col } = this.getRandomCoordinate());
 		}
 
@@ -141,15 +166,20 @@ export class HardComputerPlayer extends ComputerPlayer {
 		const result = enemyBoard.receiveAttack(row, col);
 
 		// Mark the coordinate as attacked
-		this.attackedCoordinates.add(String([row, col]));
+		this.attackedCoordinates.add(JSON.stringify([row, col]));
 
 		if (result.hit && !result.sunk) {
+			// If the attack hit a ship and the ship isn't sunk,
+			// try to get the last hit cell
 			let lastHit = null;
 			if (this.hitQueue.length > 0) {
 				lastHit = this.hitQueue.at(-1);
 			}
 
-			// determine the hit ship's direction and rightward or downward
+			// If there exists last hit cell,determine the hit ship's direction
+			// and rightward or downward according to it, otherwise, carry on.
+			// (the first hit cell has no last hit cell, so you cannot determine
+			// the ship's direction)
 			if (lastHit && row === lastHit.row) {
 				this.attackingShipDirection = 'horizontal';
 				this.rightwardOrDownward = col - lastHit.col > 0;
@@ -161,14 +191,28 @@ export class HardComputerPlayer extends ComputerPlayer {
 			// Since hit, add the coordinate to hitQueue
 			this.hitQueue.push({ row, col });
 		} else if (result.sunk) {
-			// If ship sunk, add it to sunkShips
+			// If the ship is sunk, add the coordinate to the hit queue to calculate
+			// the ship's size and positions.
+			// If you don't do this line, the size should be shorter than the actual
+			// size by 1.
+			this.hitQueue.push({ row, col });
+
+			// add the sunk ship to sunkShips
+			const size = this.hitQueue.length;
+
 			this.sunkShips.push({
-				size: this.hitQueue.length,
+				size,
 				direction: this.attackingShipDirection,
 				positions: this.hitQueue.map(({ row, col }) => [row, col]),
 			});
 
-			// then, clear related hits from queue
+			// remove sunk ship's size from remainingShipSizes
+			const index = this.remainingShipSizes.indexOf(size);
+			if (index !== -1) {
+				this.remainingShipSizes.splice(index, 1);
+			}
+
+			// then, clear related hits from queue, and this ship is done.
 			this.hitQueue = this.hitQueue.filter(
 				(hit) => hit.row !== row && hit.col !== col
 			);

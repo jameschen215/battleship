@@ -12,7 +12,7 @@ export class Game {
 	/** Initializes a new Battleship game with human and computer players. */
 	constructor() {
 		this.human = new HumanPlayer();
-		this.bot = new NormalComputerPlayer();
+		this.bot = new HardComputerPlayer();
 		this.handleClick = this.handleClick.bind(this);
 		this.updateUI = this.updateUI.bind(this);
 	}
@@ -62,9 +62,10 @@ export class Game {
 			this.human.attack(this.bot.gameboard, row, col);
 		} else {
 			console.log('Computer is thinking...');
-			await this.delay();
+			// await this.delay();
 			const { row: r, col: c } = this.bot.attack(this.human.gameboard);
 			console.log(`Computer attacked (${r}, ${c})`);
+			console.log('sunk: ', this.bot.sunkShips);
 		}
 
 		this.switchTurn();
