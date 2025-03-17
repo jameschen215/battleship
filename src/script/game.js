@@ -11,8 +11,8 @@ import { HardComputerPlayer } from './computer-players/hard-computer-player.js';
 export class Game {
 	constructor() {
 		this.human = new HumanPlayer();
-		this.bot = new HardComputerPlayer();
-		this.handleClick = this.handleClick.bind(this);
+		this.bot = new NormalComputerPlayer();
+		this.handleClickOnCell = this.handleClickOnCell.bind(this);
 		this.updateUI = this.updateUI.bind(this);
 	}
 
@@ -83,14 +83,16 @@ export class Game {
 		this.coordinateResolve = null;
 	}
 
-	setDifficulty(desc) {
-		if (desc === 'easy') {
+	setDifficulty(difficulty) {
+		if (difficulty === 'easy') {
 			this.bot = new EasyComputerPlayer();
-		} else if (desc === 'hard') {
+		} else if (difficulty === 'hard') {
 			this.bot = new HardComputerPlayer();
 		} else {
 			this.bot = new NormalComputerPlayer();
 		}
+
+		this.initializeGame();
 	}
 
 	updateUI() {
@@ -123,7 +125,7 @@ export class Game {
 		);
 	}
 
-	handleClick(row, col) {
+	handleClickOnCell(row, col) {
 		if (this.coordinateResolve !== null) {
 			this.coordinateResolve({ row, col });
 			this.coordinateResolve = null;

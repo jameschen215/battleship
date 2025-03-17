@@ -88,7 +88,7 @@ describe('Game', () => {
 		it('initializes with a human and hard computer player', () => {
 			expect(game.human).toBeInstanceOf(HumanPlayer);
 			expect(game.bot).toBeInstanceOf(HardComputerPlayer);
-			expect(game.handleClick).toBeDefined();
+			expect(game.handleClickOnCell).toBeDefined();
 			expect(game.updateUI).toBeDefined();
 			expect(game.bot.sunkShips).toEqual([]);
 		});
@@ -146,7 +146,7 @@ describe('Game', () => {
 		});
 	});
 
-	describe('handleClick', () => {
+	describe('handleClickOnCell', () => {
 		it('resolves user input promise with coordinates and resets resolver', async () => {
 			game.initializeGame();
 			game.currentPlayer = game.human;
@@ -157,7 +157,7 @@ describe('Game', () => {
 				.mockReturnValueOnce(true); // After human turn
 
 			const gamePromise = game.runGame();
-			game.handleClick(2, 3);
+			game.handleClickOnCell(2, 3);
 			await gamePromise;
 
 			expect(game.human.attack).toHaveBeenCalledWith(game.bot.gameboard, 2, 3);
@@ -168,7 +168,7 @@ describe('Game', () => {
 		it('does nothing if no resolver is set', () => {
 			game.initializeGame();
 			game.coordinateResolve = null;
-			expect(() => game.handleClick(1, 1)).not.toThrow();
+			expect(() => game.handleClickOnCell(1, 1)).not.toThrow();
 		});
 	});
 
@@ -216,13 +216,13 @@ describe('Game', () => {
 			}
 
 			// First turn
-			game.handleClick(2, 3);
+			game.handleClickOnCell(2, 3);
 
 			// Wait a bit
 			await new Promise((resolve) => setTimeout(resolve, 100));
 
 			// Second turn
-			game.handleClick(4, 5);
+			game.handleClickOnCell(4, 5);
 
 			// Wait for the game to complete or timeout after 2 seconds
 			await Promise.race([
@@ -264,7 +264,7 @@ describe('Game', () => {
 			// Run one full turn cycle
 			const runPromise = game.runGame();
 			await new Promise((resolve) => setTimeout(resolve, 50));
-			game.handleClick(2, 3);
+			game.handleClickOnCell(2, 3);
 
 			// Wait a bit for bot's turn to complete
 			await new Promise((resolve) => setTimeout(resolve, 50));
@@ -304,7 +304,7 @@ describe('Game', () => {
 
 			const runPromise = game.runGame();
 			await new Promise((resolve) => setTimeout(resolve, 100));
-			game.handleClick(2, 3);
+			game.handleClickOnCell(2, 3);
 			await runPromise;
 
 			expect(game.isGameOver).toBe(true);
@@ -323,7 +323,7 @@ describe('Game', () => {
 
 			const runPromise = game.runGame();
 			await new Promise((resolve) => setTimeout(resolve, 100));
-			game.handleClick(2, 3);
+			game.handleClickOnCell(2, 3);
 			await runPromise;
 
 			expect(game.isGameOver).toBe(true);
@@ -338,7 +338,7 @@ describe('Game', () => {
 
 			const runPromise = game.runGame();
 			await new Promise((resolve) => setTimeout(resolve, 100));
-			game.handleClick(20, 30);
+			game.handleClickOnCell(20, 30);
 
 			// End game to prevent hanging
 			game.isGameOver = true;
@@ -389,7 +389,7 @@ describe('Game', () => {
 
 			const runPromise = game.runGame();
 			await new Promise((resolve) => setTimeout(resolve, 100));
-			game.handleClick(2, 3);
+			game.handleClickOnCell(2, 3);
 
 			// End game to prevent hanging
 			game.isGameOver = true;

@@ -1,7 +1,11 @@
 import './header.css';
 
+import { DOWN_ANGLE } from '../../script/constants.js';
+
 import { ComputerPlayer } from '../../script/computer-players/computer-player.js';
 import { HumanPlayer } from '../../script/human-player.js';
+import { EasyComputerPlayer } from '../../script/computer-players/easy-computer-player.js';
+import { HardComputerPlayer } from '../../script/computer-players/hard-computer-player.js';
 
 export function Header(game) {
 	const header = document.createElement('header');
@@ -46,10 +50,124 @@ export function Header(game) {
 	gameInfo.appendChild(message);
 	header.appendChild(gameInfo);
 
-	// Fill empty to make game info center
-	const empty = document.createElement('div');
-	empty.className = 'fill-empty';
-	header.appendChild(empty);
+	// Dropdown
+	let difficulty = null;
+	if (game.bot instanceof EasyComputerPlayer) {
+		difficulty = 'Easy';
+	} else if (game.bot instanceof HardComputerPlayer) {
+		difficulty = 'Hard';
+	} else {
+		difficulty = 'Normal';
+	}
+
+	const dropdownContainer = document.createElement('div');
+	dropdownContainer.className = 'dropdown-container';
+
+	const triggerButton = document.createElement('button');
+	triggerButton.id = 'dropdown-trigger';
+	triggerButton.className = 'dropdown-trigger';
+
+	const buttonText = document.createElement('div');
+	buttonText.classList = 'button-text';
+	buttonText.textContent = difficulty;
+
+	const dropdownIcon = document.createElement('div');
+	dropdownIcon.className = 'dropdown-icon';
+	dropdownIcon.innerHTML = DOWN_ANGLE;
+
+	// Add event listener
+	triggerButton.addEventListener('click', (event) => {
+		event.stopPropagation();
+
+		dropdownDom.classList.toggle('hidden');
+	});
+
+	triggerButton.appendChild(buttonText);
+	dropdownContainer.appendChild(triggerButton);
+	triggerButton.appendChild(dropdownIcon);
+
+	const dropdownDom = document.createElement('div');
+	dropdownDom.id = 'dropdown';
+	dropdownDom.className = 'dropdown hidden';
+
+	// Option click handler
+	const handleOptionClick = (event) => {
+		const difficulty = event.currentTarget.dataset.difficulty;
+		triggerButton.textContent = difficulty;
+		dropdownDom.classList.add('hidden');
+		game.setDifficulty(difficulty);
+
+		game.updateUI();
+	};
+
+	const easyOption = document.createElement('button');
+	easyOption.className = 'option';
+	easyOption.dataset.difficulty = 'easy';
+
+	const easyCheck = document.createElement('div');
+	easyCheck.id = 'easy-check';
+	easyCheck.className = `option-check ${
+		triggerButton.textContent.toLocaleLowerCase() !== 'easy' ? 'invisible' : ''
+	}`;
+	easyCheck.textContent = '✓';
+	const easyText = document.createElement('div');
+	easyText.className = 'option-text';
+	easyText.textContent = 'easy';
+	easyOption.appendChild(easyCheck);
+	easyOption.appendChild(easyText);
+
+	easyOption.addEventListener('click', handleOptionClick);
+	dropdownDom.appendChild(easyOption);
+
+	const normalOption = document.createElement('button');
+	normalOption.className = 'option';
+	normalOption.dataset.difficulty = 'normal';
+
+	const normalCheck = document.createElement('div');
+	normalCheck.id = 'normal-check';
+	normalCheck.className = `option-check ${
+		triggerButton.textContent.toLocaleLowerCase() !== 'normal'
+			? 'invisible'
+			: ''
+	}`;
+	normalCheck.textContent = '✓';
+	const normalText = document.createElement('div');
+	normalText.className = 'option-text';
+	normalText.textContent = 'normal';
+	normalOption.appendChild(normalCheck);
+	normalOption.appendChild(normalText);
+
+	normalOption.addEventListener('click', handleOptionClick);
+	dropdownDom.appendChild(normalOption);
+
+	const hardOption = document.createElement('button');
+	hardOption.className = 'option';
+	hardOption.dataset.difficulty = 'hard';
+
+	const hardCheck = document.createElement('div');
+	hardCheck.id = 'hard-check';
+	hardCheck.className = `option-check ${
+		triggerButton.textContent.toLocaleLowerCase() !== 'hard' ? 'invisible' : ''
+	}`;
+	hardCheck.textContent = '✓';
+	const hardText = document.createElement('div');
+	hardText.className = 'option-text';
+	hardText.textContent = 'hard';
+	hardOption.appendChild(hardCheck);
+	hardOption.appendChild(hardText);
+
+	hardOption.addEventListener('click', handleOptionClick);
+	dropdownDom.appendChild(hardOption);
+
+	dropdownContainer.appendChild(dropdownDom);
+	header.appendChild(dropdownContainer);
+
+	// Click out of dropdown to make it hidden
+	document.addEventListener('click', (event) => {
+		if (!dropdownDom.classList.contains('hidden')) {
+			dropdownDom.classList.add('hidden');
+		}
+	});
 
 	return header;
 }

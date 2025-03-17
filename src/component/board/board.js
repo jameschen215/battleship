@@ -10,8 +10,13 @@ import { Cell } from '../cell/cell.js';
 
 export function Board(game, player) {
 	const gameboard = player.gameboard;
-	const { isGameRunning, isGameOver, currentPlayer, handleClick, updateUI } =
-		game;
+	const {
+		isGameRunning,
+		isGameOver,
+		currentPlayer,
+		handleClickOnCell,
+		updateUI,
+	} = game;
 
 	const container = document.createElement('div');
 
@@ -31,7 +36,7 @@ export function Board(game, player) {
 
 			const [row, col] = cellDom.dataset.coordinate.split(',').map(Number);
 
-			handleClick(row, col);
+			handleClickOnCell(row, col);
 		}
 	};
 
