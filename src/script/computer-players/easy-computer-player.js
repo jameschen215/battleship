@@ -16,7 +16,7 @@ export class EasyComputerPlayer extends ComputerPlayer {
 		this.attackedCoordinates = new Set();
 	}
 
-	getRandomCoordinate() {
+	#getRandomCoordinate() {
 		let row = null;
 		let col = null;
 
@@ -33,7 +33,7 @@ export class EasyComputerPlayer extends ComputerPlayer {
 			throw new Error('Must attack an enemy Gameboard instance');
 		}
 
-		const { row, col } = this.getRandomCoordinate();
+		const { row, col } = this.#getRandomCoordinate();
 		this.attackedCoordinates.add(String([row, col]));
 
 		return enemyBoard.receiveAttack(row, col);

@@ -2,7 +2,7 @@ import { Player } from './player.js';
 import { Gameboard } from './gameboard.js';
 
 export class HumanPlayer extends Player {
-	#name = 'Unnamed';
+	#name = 'Player';
 
 	get name() {
 		return this.#name;

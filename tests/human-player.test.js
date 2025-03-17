@@ -20,7 +20,7 @@ describe('HumanPlayer', () => {
 	describe('constructor', () => {
 		it('initializes with a player name', () => {
 			const human = new HumanPlayer();
-			expect(human.name).toBe('Unnamed');
+			expect(human.name).toBe('Player');
 		});
 	});
 
@@ -34,7 +34,7 @@ describe('HumanPlayer', () => {
 		afterEach(() => jest.resetAllMocks());
 
 		it('name getter returns a human name', () => {
-			expect(human.name).toBe('Unnamed');
+			expect(human.name).toBe('Player');
 		});
 
 		it('name setter set a human name', () => {

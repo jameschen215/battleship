@@ -1,4 +1,3 @@
-/** ------------------  ComputerPlayer test ------------------ */
 import { Player } from '../../src/script/player.js';
 import { ComputerPlayer } from '../../src/script/computer-players/computer-player.js';
 

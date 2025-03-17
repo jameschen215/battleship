@@ -1,6 +1,3 @@
-/**
- * ----------- NormalComputerPlayer ----------
- */
 import { getRandomInt, shuffle } from '../utils.js';
 import { isCoordinateOnBoard } from '../helpers.js';
 
@@ -31,7 +28,7 @@ export class NormalComputerPlayer extends ComputerPlayer {
 		this.goBack = false;
 	}
 
-	getRandomCoordinate() {
+	#getRandomCoordinate() {
 		let row = null;
 		let col = null;
 
@@ -90,12 +87,12 @@ export class NormalComputerPlayer extends ComputerPlayer {
 				// If no valid adjacent cell, remove the hit one and try a random one
 				if (row === null) {
 					this.hitQueue.shift();
-					({ row, col } = this.getRandomCoordinate());
+					({ row, col } = this.#getRandomCoordinate());
 				}
 			}
 		} else {
 			// If there are no hit cells, select a random one.
-			({ row, col } = this.getRandomCoordinate());
+			({ row, col } = this.#getRandomCoordinate());
 		}
 
 		// Launch an attack at the specified coordinate and monitor the result.

@@ -47,11 +47,11 @@ export class HardComputerPlayer extends ComputerPlayer {
 	}
 
 	// Get the smallest size of the remaining ships
-	getMinSizeOfShip() {
+	#getMinSizeOfShip() {
 		return Math.min(...this.remainingShipSizes);
 	}
 
-	isLongEnoughForShips(row, col, size) {
+	#isLongEnoughForShips(row, col, size) {
 		return groupedSurroundingCoordinates(row, col, size).some((group) =>
 			group.every(
 				(coord) => !this.attackedCoordinates.has(JSON.stringify(coord))
@@ -59,7 +59,7 @@ export class HardComputerPlayer extends ComputerPlayer {
 		);
 	}
 
-	isValidCoord(row, col) {
+	#isValidCoord(row, col) {
 		const sunkShipBufferZone = getSunkShipsBufferZone(this.sunkShips);
 
 		return (
@@ -69,7 +69,7 @@ export class HardComputerPlayer extends ComputerPlayer {
 		);
 	}
 
-	getRandomCoordinate() {
+	#getRandomCoordinate() {
 		let row = null;
 		let col = null;
 
@@ -77,8 +77,8 @@ export class HardComputerPlayer extends ComputerPlayer {
 			row = getRandomInt(0, 9);
 			col = getRandomInt(0, 9);
 		} while (
-			!this.isValidCoord(row, col) ||
-			!this.isLongEnoughForShips(row, col, this.getMinSizeOfShip())
+			!this.#isValidCoord(row, col) ||
+			!this.#isLongEnoughForShips(row, col, this.#getMinSizeOfShip())
 		);
 
 		return { row, col };
@@ -112,7 +112,7 @@ export class HardComputerPlayer extends ComputerPlayer {
 				col = this.rightwardOrDownward ? lastHit.col + 1 : lastHit.col - 1;
 
 				// If the next cell is invalid, like attacked or on gap
-				if (!this.isValidCoord(row, col)) {
+				if (!this.#isValidCoord(row, col)) {
 					// Go back to the first hit cell and choose the adjacent cell on
 					// the opposite side horizontally
 					lastHit = this.hitQueue[0];
@@ -126,7 +126,7 @@ export class HardComputerPlayer extends ComputerPlayer {
 				row = this.rightwardOrDownward ? lastHit.row + 1 : lastHit.row - 1;
 				col = lastHit.col;
 
-				if (!this.isValidCoord(row, col)) {
+				if (!this.#isValidCoord(row, col)) {
 					// Go back to the first hit cell and choose the adjacent cell on
 					// the opposite side vertically
 					lastHit = this.hitQueue[0];
@@ -144,7 +144,7 @@ export class HardComputerPlayer extends ComputerPlayer {
 
 				// Looking for a valid, un-attacked adjacent cell
 				for (const coord of shuffle(adjacentCells)) {
-					if (this.isValidCoord(coord.row, coord.col)) {
+					if (this.#isValidCoord(coord.row, coord.col)) {
 						({ row, col } = coord);
 						break;
 					}
@@ -154,12 +154,12 @@ export class HardComputerPlayer extends ComputerPlayer {
 				// or on gap, remove the last hit one and try to choose an new random coordinate
 				if (row === null) {
 					this.hitQueue.shift();
-					({ row, col } = this.getRandomCoordinate());
+					({ row, col } = this.#getRandomCoordinate());
 				}
 			}
 		} else {
 			// If there are no hit cells, select a random coordinate.
-			({ row, col } = this.getRandomCoordinate());
+			({ row, col } = this.#getRandomCoordinate());
 		}
 
 		// Launch an attack at the specified coordinate and monitor the result.
@@ -212,14 +212,11 @@ export class HardComputerPlayer extends ComputerPlayer {
 				this.remainingShipSizes.splice(index, 1);
 			}
 
-			// then, clear related hits from queue, and this ship is done.
-			this.hitQueue = this.hitQueue.filter(
-				(hit) => hit.row !== row && hit.col !== col
-			);
-
-			// finally, reset the direction
+			// Clear hitQueue entirely when ship is sunk
+			this.hitQueue = [];
 			this.attackingShipDirection = '';
 			this.rightwardOrDownward = true;
+			this.goBack = false;
 		} else if (!result.hit && this.attackingShipDirection !== '') {
 			/**
 			 * If you go beyond the first or last component, return to

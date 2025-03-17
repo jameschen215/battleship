@@ -239,7 +239,7 @@ describe('Gameboard', () => {
 		let gameboard;
 
 		beforeEach(() => {
-			gameboard = new Gameboard(10);
+			gameboard = new Gameboard();
 		});
 
 		it('returns false when no ship on board', () => {
@@ -274,7 +274,7 @@ describe('Gameboard', () => {
 
 		it('returns false when some ships are sunk but not all', () => {
 			gameboard.placeShip(2, 0, 0);
-			gameboard.placeShip(2, 1, 1);
+			gameboard.placeShip(2, 2, 1);
 			gameboard.receiveAttack(0, 0);
 			gameboard.receiveAttack(0, 1); // Sink first ship
 			expect(gameboard.allSunk()).toBe(false); // Second ship remains
@@ -310,7 +310,7 @@ describe('Gameboard', () => {
 			);
 		});
 
-		it('returns "empty" for an unattacked ship cell', () => {
+		it('returns "empty" for an un-attacked ship cell', () => {
 			gameboard.placeShip(3, 0, 0);
 			expect(gameboard.getCellState(0, 1)).toBe('empty');
 		});

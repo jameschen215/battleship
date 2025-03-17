@@ -34,40 +34,6 @@ describe('EasyComputerPlayer', () => {
 		});
 	});
 
-	describe('getRandomCoordinate', () => {
-		let bot;
-		beforeEach(() => {
-			bot = new EasyComputerPlayer();
-		});
-
-		it('returns a coordinate on board', () => {
-			jest
-				.spyOn(Math, 'random')
-				.mockReturnValueOnce(0.05)
-				.mockReturnValueOnce(0.95);
-			const { row, col } = bot.getRandomCoordinate();
-
-			expect(row).toBeLessThan(BOARD_SIZE);
-			expect(row).toBeGreaterThanOrEqual(0);
-			expect(col).toBeLessThan(BOARD_SIZE);
-			expect(col).toBeGreaterThanOrEqual(0);
-		});
-
-		it('returns a coordinate un-attacked', () => {
-			bot.attackedCoordinates.add('0,0');
-			jest
-				.spyOn(Math, 'random')
-				.mockReturnValueOnce(0.05)
-				.mockReturnValueOnce(0.05)
-				.mockReturnValueOnce(0.55)
-				.mockReturnValueOnce(0.45);
-
-			const { row, col } = bot.getRandomCoordinate();
-			expect(row).not.toBe(0);
-			expect(col).not.toBe(0);
-		});
-	});
-
 	describe('attack', () => {
 		let bot = null;
 		let enemyBoard = null;
