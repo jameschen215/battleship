@@ -25,11 +25,20 @@ export class Cell {
 }
 
 export class Gameboard {
-	#board = [];
 	#ships = [];
+	#board = [];
 
 	constructor() {
 		this.setBoard();
+	}
+
+	setBoard() {
+		for (let row = 0; row < BOARD_SIZE; row++) {
+			this.#board[row] = [];
+			for (let col = 0; col < BOARD_SIZE; col++) {
+				this.#board[row][col] = new Cell();
+			}
+		}
 	}
 
 	get board() {
@@ -44,15 +53,6 @@ export class Gameboard {
 	get ships() {
 		// Return a shallow copy to prevent direct mutation
 		return [...this.#ships];
-	}
-
-	setBoard() {
-		for (let row = 0; row < BOARD_SIZE; row++) {
-			this.#board[row] = [];
-			for (let col = 0; col < BOARD_SIZE; col++) {
-				this.#board[row][col] = new Cell();
-			}
-		}
 	}
 
 	placeShip(size, startRow, startCol, direction = 'horizontal') {
@@ -87,19 +87,20 @@ export class Gameboard {
 				};
 			}
 
-			// Check buffer zone overlap
-			const isOverLapping = this.#ships.some((shipObj) =>
-				shipObj.positions.some(([r, c]) =>
-					getBufferZone(r, c, shipObj.ship.size, shipObj.ship.direction).some(
-						([br, bc]) => br === row && bc === col
-					)
+			// Check if buffer zone overlap
+			if (
+				this.ships.some(({ ship, positions }) =>
+					getBufferZone(
+						positions[0][0],
+						positions[0][1],
+						ship.size,
+						ship.direction
+					).some(([br, bc]) => br === row && bc === col)
 				)
-			);
-
-			if (isOverLapping) {
+			) {
 				return {
 					success: false,
-					reason: 'Ship placement overlaps with another ship',
+					reason: "Ship placement overlaps with another ship's buffer zone",
 				};
 			}
 

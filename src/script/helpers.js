@@ -41,6 +41,7 @@ function getStartPointOfAShip(ship) {
 
 export function getBufferZone(row, col, size, direction) {
 	const buffer = [];
+
 	const startRow = Math.max(0, row - 1);
 	const endRow = Math.min(
 		BOARD_SIZE - 1,
@@ -54,7 +55,9 @@ export function getBufferZone(row, col, size, direction) {
 
 	for (let r = startRow; r <= endRow; r++) {
 		for (let c = startCol; c <= endCol; c++) {
-			buffer.push([r, c]);
+			if (isCoordinateOnBoard(r, c)) {
+				buffer.push([r, c]);
+			}
 		}
 	}
 

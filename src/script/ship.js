@@ -1,4 +1,5 @@
 import { MAX_SHIP_SIZE, MIN_SHIP_SIZE, SHIP_DIRECTIONS } from './constants.js';
+import { isCoordinateOnBoard } from './helpers.js';
 
 export class Ship {
 	#hits = 0;
