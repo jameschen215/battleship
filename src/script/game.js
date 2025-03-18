@@ -40,16 +40,19 @@ export class Game {
 		if (this.currentPlayer === this.human) {
 			if (!isCoordinateOnBoard(row, col)) return;
 
-			this.human.attack(this.bot.gameboard, row, col);
+			const result = this.human.attack(this.bot.gameboard, row, col);
+
+			if (!result.hit) this.#switchTurn();
 		} else {
 			// console.log('Computer is thinking...');
-			// await this.#delay();
-			const { row: r, col: c } = this.bot.attack(this.human.gameboard);
+			await this.#delay();
+			const { row: r, col: c, result } = this.bot.attack(this.human.gameboard);
 			console.log(`Computer attacked (${r}, ${c})`);
 			// console.log('sunk: ', this.bot.sunkShips);
+			if (!result.hit) this.#switchTurn();
 		}
 
-		this.#switchTurn();
+		// this.#switchTurn();
 	}
 
 	#checkWinner() {
