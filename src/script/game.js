@@ -19,7 +19,7 @@ export class Game {
 	// Delay function for bot thinking
 	#delay() {
 		return new Promise((resolve) =>
-			setTimeout(resolve, getRandomInt(250, 3000))
+			setTimeout(resolve, getRandomInt(250, 1000))
 		);
 	}
 

@@ -1,11 +1,15 @@
 import './header.css';
 
+import difficultyIcon from '../../images/difficulty-icon.png';
+
 import { DOWN_ANGLE } from '../../script/constants.js';
 
 import { ComputerPlayer } from '../../script/computer-players/computer-player.js';
 import { HumanPlayer } from '../../script/human-player.js';
 import { EasyComputerPlayer } from '../../script/computer-players/easy-computer-player.js';
 import { HardComputerPlayer } from '../../script/computer-players/hard-computer-player.js';
+
+const DIFFICULTY_ICON = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chart-no-axes-column-increasing"><line x1="12" x2="12" y1="20" y2="10"/><line x1="18" x2="18" y1="20" y2="4"/><line x1="6" x2="6" y1="20" y2="16"/></svg>`;
 
 export function Header(game) {
 	const header = document.createElement('header');
@@ -63,9 +67,21 @@ export function Header(game) {
 	const dropdownContainer = document.createElement('div');
 	dropdownContainer.className = 'dropdown-container';
 
+	const difficultyIconDom = document.createElement('div');
+	difficultyIconDom.className = 'difficulty-icon';
+	// difficultyIconDom.innerHTML = DIFFICULTY_ICON;
+	const image = document.createElement('img');
+	image.src = difficultyIcon;
+	image.alt = 'Difficulty icon';
+	difficultyIconDom.appendChild(image);
+
+	dropdownContainer.appendChild(difficultyIconDom);
+
 	const triggerButton = document.createElement('button');
 	triggerButton.id = 'dropdown-trigger';
-	triggerButton.className = 'dropdown-trigger';
+	triggerButton.className = `dropdown-trigger ${
+		game.isGameRunning ? 'disabled' : ''
+	}`;
 
 	const buttonText = document.createElement('div');
 	buttonText.classList = 'button-text';
