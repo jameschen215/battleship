@@ -2,7 +2,7 @@ import './ship.css';
 
 import { CELL_SIZE } from '../../script/constants.js';
 
-export function Ship(ship, positions, index) {
+export function Ship(ship, positions, index, isGameOver) {
 	const [startRow, startCol] = positions[0];
 
 	const shipDom = document.createElement('div');
@@ -57,7 +57,7 @@ export function Ship(ship, positions, index) {
 		shipDom.style.pointerEvents = 'auto';
 	});
 
-	if (ship.isSunk()) {
+	if (ship.isSunk() || isGameOver) {
 		shipDom.classList.add('sunk');
 	}
 

@@ -91,7 +91,7 @@ export function Board(game, player) {
 
 	// Place ships on board
 	gameboard.ships.forEach(({ ship, positions }, index) => {
-		const shipDom = Ship(ship, positions, index);
+		const shipDom = Ship(ship, positions, index, isGameOver);
 		shipDom.addEventListener('click', rotateShipHandler);
 		container.appendChild(shipDom);
 	});

@@ -30,7 +30,6 @@ export class Game {
 
 	#getUserInput() {
 		return new Promise((resolve) => {
-			console.log('getUserInput called, setting coordinateResolve');
 			this.coordinateResolve = resolve;
 		});
 	}
@@ -43,11 +42,11 @@ export class Game {
 
 			this.human.attack(this.bot.gameboard, row, col);
 		} else {
-			console.log('Computer is thinking...');
-			await this.#delay();
+			// console.log('Computer is thinking...');
+			// await this.#delay();
 			const { row: r, col: c } = this.bot.attack(this.human.gameboard);
 			console.log(`Computer attacked (${r}, ${c})`);
-			console.log('sunk: ', this.bot.sunkShips);
+			// console.log('sunk: ', this.bot.sunkShips);
 		}
 
 		this.#switchTurn();

@@ -62,6 +62,8 @@ export class HardComputerPlayer extends ComputerPlayer {
 	#isValidCoord(row, col) {
 		const sunkShipBufferZone = getSunkShipsBufferZone(this.sunkShips);
 
+		console.log({ sunkShipBufferZone });
+
 		return (
 			isCoordinateOnBoard(row, col) &&
 			!this.attackedCoordinates.has(JSON.stringify([row, col])) &&
