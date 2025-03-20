@@ -4,7 +4,8 @@ import { isCoordinateOnBoard, getBufferZone } from './helpers.js';
 import { Ship } from './ship';
 
 export class Cell {
-	static STATES = ['empty', 'hit', 'miss'];
+	static STATES = ['empty', 'hit', 'miss', 'gap'];
+
 	#state = 'empty';
 
 	get state() {
@@ -20,7 +21,7 @@ export class Cell {
 	}
 
 	isAttacked() {
-		return this.#state !== 'empty';
+		return this.#state === 'hit' || this.#state === 'miss';
 	}
 }
 
@@ -30,6 +31,16 @@ export class Gameboard {
 
 	constructor() {
 		this.setBoard();
+	}
+
+	// Set state of cells that is some ships' buffer zone as 'gap'
+	#setBufferZone(ship, positions) {
+		getBufferZone(positions, ship.size, ship.direction).forEach(
+			([row, col]) => {
+				const cell = this.#board[row][col];
+				cell.state = cell.state === 'empty' ? 'gap' : cell.state;
+			}
+		);
 	}
 
 	setBoard() {
@@ -87,15 +98,13 @@ export class Gameboard {
 				};
 			}
 
-			// Check if buffer zone overlap
+			// Check if ships overlapping each other's positions or buffer zone
 			if (
 				this.ships.some(({ ship, positions }) =>
-					getBufferZone(
-						positions[0][0],
-						positions[0][1],
-						ship.size,
-						ship.direction
-					).some(([br, bc]) => br === row && bc === col)
+					[
+						...positions,
+						...getBufferZone(positions, ship.size, ship.direction),
+					].some(([br, bc]) => br === row && bc === col)
 				)
 			) {
 				return {
@@ -109,7 +118,7 @@ export class Gameboard {
 
 		this.#ships.push({ ship, positions });
 
-		return { success: true };
+		return { success: true, reason: null };
 	}
 
 	receiveAttack(row, col) {
@@ -120,22 +129,29 @@ export class Gameboard {
 		const cell = this.#board[row][col];
 
 		if (cell.isAttacked()) {
-			return { hit: false, sunk: false, reason: 'attacked' };
+			return { hit: false, sunk: false, reason: 'Cell has been attacked.' };
 		}
 
 		for (const { ship, positions } of this.#ships) {
+			// If hitting a ship
 			if (positions.some(([r, c]) => r === row && c === col)) {
 				ship.hit();
 				cell.state = 'hit';
+
+				if (ship.isSunk()) {
+					this.#setBufferZone(ship, positions);
+				}
+
 				return { hit: true, sunk: ship.isSunk() };
 			}
 		}
-
+		// If missing ships
 		cell.state = 'miss';
 		return { hit: false, sunk: false };
 	}
 
 	allSunk() {
+		// If there's no ship on board before initialization of the game
 		if (this.#ships.length === 0) {
 			return false;
 		}
@@ -159,6 +175,8 @@ export class Gameboard {
 			);
 		}
 
-		return this.#board[row][col].state !== 'empty';
+		const state = this.#board[row][col].state;
+
+		return state === 'hit' || state === 'miss';
 	}
 }

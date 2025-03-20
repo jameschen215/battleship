@@ -1,8 +1,9 @@
 import { MAX_SHIP_SIZE, MIN_SHIP_SIZE, SHIP_DIRECTIONS } from './constants.js';
-import { isCoordinateOnBoard } from './helpers.js';
 
 export class Ship {
 	#hits = 0;
+	#size = null;
+	#direction = '';
 
 	constructor(size, direction) {
 		if (
@@ -19,11 +20,19 @@ export class Ship {
 			throw new Error('Directions must be "horizontal" or "vertical"');
 		}
 
-		this.size = size;
-		this.direction = direction;
+		this.#size = size;
+		this.#direction = direction;
 	}
 
-	getHits() {
+	get size() {
+		return this.#size;
+	}
+
+	get direction() {
+		return this.#direction;
+	}
+
+	get hits() {
 		return this.#hits;
 	}
 

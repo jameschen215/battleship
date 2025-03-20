@@ -1,5 +1,3 @@
-// tests/game.test.js
-
 import * as utils from '../src/script/utils.js';
 import * as helpers from '../src/script/helpers.js';
 import * as displayModule from '../src/script/display.js';
@@ -35,42 +33,44 @@ describe('Game', () => {
 		// Mock Gameboard implementation
 		Gameboard.mockImplementation(() => ({
 			setBoard: jest.fn(),
-			placeShips: jest.fn(),
-			allSunk: jest.fn().mockReturnValue(false),
+			placeShip: jest.fn().mockReturnValue({ success: true }),
+			allSunk: jest.fn(),
 		}));
 
-		// Spy on HumanPlayer methods
-		jest.spyOn(HumanPlayer.prototype, 'attack').mockImplementation(() => {});
+		// Mock human player placeShips
 		jest
 			.spyOn(HumanPlayer.prototype, 'placeShips')
 			.mockImplementation(() => {});
+
+		// Mock human player name getter
 		Object.defineProperty(HumanPlayer.prototype, 'name', {
 			get: jest.fn(() => 'Human'),
 			configurable: true,
 		});
 
-		// Spy on EasyComputerPlayer placeShips method
+		// Mock normal computer player's placeShips method
 		jest
-			.spyOn(EasyComputerPlayer.prototype, 'placeShips')
+			.spyOn(NormalComputerPlayer.prototype, 'placeShips')
 			.mockImplementation(() => {});
 
-		// Spy on HardComputerPlayer methods
+		// Mock normal computer player's attack method
 		jest
-			.spyOn(HardComputerPlayer.prototype, 'attack')
-			.mockImplementation(() => ({ row: 0, col: 0 }));
+			.spyOn(NormalComputerPlayer.prototype, 'attack')
+			.mockImplementation(() => ({
+				row: 0,
+				col: 0,
+				result: { hit: false, sunk: false },
+			}));
 
+		// Mock normal computer player's resetHistory method
+		jest
+			.spyOn(NormalComputerPlayer.prototype, 'resetHistory')
+			.mockImplementation(() => {});
+
+		// Mock hard computer player's placeShips method
 		jest
 			.spyOn(HardComputerPlayer.prototype, 'placeShips')
 			.mockImplementation(() => {});
-
-		jest
-			.spyOn(HardComputerPlayer.prototype, 'resetHistory')
-			.mockImplementation(() => {});
-
-		Object.defineProperty(HardComputerPlayer.prototype, 'name', {
-			get: jest.fn(() => 'Bot'),
-			configurable: true,
-		});
 
 		// Mock utilities
 		utils.getRandomInt.mockImplementation((min, max) => min);
@@ -85,12 +85,11 @@ describe('Game', () => {
 	});
 
 	describe('constructor', () => {
-		it('initializes with a human and hard computer player', () => {
+		it('initializes with a human and normal computer player', () => {
 			expect(game.human).toBeInstanceOf(HumanPlayer);
-			expect(game.bot).toBeInstanceOf(HardComputerPlayer);
+			expect(game.bot).toBeInstanceOf(NormalComputerPlayer);
 			expect(game.handleClickOnCell).toBeDefined();
 			expect(game.updateUI).toBeDefined();
-			expect(game.bot.sunkShips).toEqual([]);
 		});
 	});
 
@@ -108,7 +107,6 @@ describe('Game', () => {
 			expect(game.isGameOver).toBe(false);
 			expect(game.winner).toBe(null);
 			expect(game.isGameRunning).toBe(false);
-			expect(game.bot.sunkShips).toEqual([]);
 		});
 	});
 
@@ -151,13 +149,34 @@ describe('Game', () => {
 			game.initializeGame();
 			game.currentPlayer = game.human;
 
+			// Spy on HumanPlayer methods
+			jest
+				.spyOn(HumanPlayer.prototype, 'attack')
+				.mockReturnValueOnce({ result: { hit: true } })
+				.mockReturnValueOnce({ result: { hit: true } });
+
 			// Mock win condition after one turn
 			game.bot.gameboard.allSunk
 				.mockReturnValueOnce(false) // Initial check
 				.mockReturnValueOnce(true); // After human turn
 
+			// Make sure human.gameboard.allSunk returns false to prevent bot win
+			game.human.gameboard.allSunk.mockReturnValue(false);
+
+			// Start the game
 			const gamePromise = game.runGame();
+
+			// Ensure coordinateResolve is set by first click
+			await new Promise((resolve) => setTimeout(resolve, 50));
+
+			// Simulate a click
 			game.handleClickOnCell(2, 3);
+
+			// Ensure coordinateResolve is set by second click in a row
+			await new Promise((resolve) => setTimeout(resolve, 50));
+			game.handleClickOnCell(2, 4);
+
+			// Wait for the game to complete
 			await gamePromise;
 
 			expect(game.human.attack).toHaveBeenCalledWith(game.bot.gameboard, 2, 3);
@@ -187,8 +206,16 @@ describe('Game', () => {
 			// Ensure the human is the current player
 			game.currentPlayer = game.human;
 
+			// Spy on HumanPlayer methods
+			jest
+				.spyOn(HumanPlayer.prototype, 'attack')
+				.mockReturnValueOnce({ result: { hit: true } })
+				.mockReturnValueOnce({ result: { hit: false } })
+				.mockReturnValueOnce({ result: { hit: true } });
+
 			// Setup mock return values
 			game.bot.gameboard.allSunk
+				.mockReturnValueOnce(false)
 				.mockReturnValueOnce(false)
 				.mockReturnValueOnce(false)
 				.mockReturnValueOnce(true);
@@ -200,29 +227,14 @@ describe('Game', () => {
 			// Give the game a moment to start and set up coordinateResolve
 			await new Promise((resolve) => setTimeout(resolve, 100));
 
-			// Check if coordinateResolve is set - if not, log the game state
-			if (typeof game.coordinateResolve !== 'function') {
-				console.log('Game state:', {
-					currentPlayer: game.currentPlayer === game.human ? 'Human' : 'Bot',
-					isGameRunning: game.isGameRunning,
-					isGameOver: game.isGameOver,
-				});
-
-				// Force the coordinateResolve to be set by calling getUserInput directly
-				// This is a bit hacky but might help diagnose the issue
-				game.coordinateResolve = (coords) => {
-					console.log('Manual coordinateResolve called with', coords);
-				};
-			}
-
-			// First turn
+			// First attack
 			game.handleClickOnCell(2, 3);
 
 			// Wait a bit
 			await new Promise((resolve) => setTimeout(resolve, 100));
 
-			// Second turn
-			game.handleClickOnCell(4, 5);
+			// Second attack
+			game.handleClickOnCell(2, 4);
 
 			// Wait for the game to complete or timeout after 2 seconds
 			await Promise.race([
@@ -242,6 +254,7 @@ describe('Game', () => {
 
 			// Check if the game ended as expected
 			expect(game.human.attack).toHaveBeenCalledWith(game.bot.gameboard, 2, 3);
+			expect(game.human.attack).toHaveBeenCalledWith(game.bot.gameboard, 2, 4);
 			expect(game.bot.attack).toHaveBeenCalled();
 		}, 10000);
 	});
@@ -253,6 +266,11 @@ describe('Game', () => {
 		it('correctly updates game state after a full turn cycle', async () => {
 			game.initializeGame();
 			expect(game.currentPlayer).toBe(game.human);
+
+			jest
+				.spyOn(HumanPlayer.prototype, 'attack')
+				.mockReturnValueOnce({ result: { hit: false } })
+				.mockReturnValueOnce({ result: { hit: false } });
 
 			// Setup mock returns
 			game.bot.gameboard.allSunk.mockReturnValue(false);
@@ -271,7 +289,7 @@ describe('Game', () => {
 
 			// End the game to prevent hanging
 			game.isGameOver = true;
-			// await runPromise;
+
 			await Promise.race([
 				runPromise,
 				new Promise((resolve) =>
@@ -283,7 +301,7 @@ describe('Game', () => {
 							isGameOver: game.isGameOver,
 						});
 						resolve();
-					}, 2000)
+					}, 200)
 				),
 			]);
 
@@ -296,6 +314,11 @@ describe('Game', () => {
 		it('ends game when human wins', async () => {
 			game.initializeGame();
 
+			jest
+				.spyOn(HumanPlayer.prototype, 'attack')
+				.mockReturnValueOnce({ result: { hit: true } })
+				.mockReturnValueOnce({ result: { hit: true } });
+
 			// Setup for human win
 			game.bot.gameboard.allSunk
 				.mockReturnValueOnce(false)
@@ -303,9 +326,27 @@ describe('Game', () => {
 			game.human.gameboard.allSunk.mockReturnValue(false);
 
 			const runPromise = game.runGame();
+
 			await new Promise((resolve) => setTimeout(resolve, 100));
 			game.handleClickOnCell(2, 3);
-			await runPromise;
+
+			await new Promise((resolve) => setTimeout(resolve, 100));
+			game.handleClickOnCell(2, 4);
+			// await runPromise;
+			await Promise.race([
+				runPromise,
+				new Promise((resolve) =>
+					setTimeout(() => {
+						console.log('Game timed out. Current state:', {
+							currentPlayer:
+								game.currentPlayer === game.human ? 'Human' : 'Bot',
+							isGameRunning: game.isGameRunning,
+							isGameOver: game.isGameOver,
+						});
+						resolve();
+					}, 200)
+				),
+			]);
 
 			expect(game.isGameOver).toBe(true);
 			expect(game.winner).toBe(game.human);
@@ -314,6 +355,11 @@ describe('Game', () => {
 
 		it('ends game when bot wins', async () => {
 			game.initializeGame();
+
+			jest
+				.spyOn(HumanPlayer.prototype, 'attack')
+				.mockReturnValueOnce({ result: { hit: false } })
+				.mockReturnValueOnce({ result: { hit: false } });
 
 			// Setup for bot win
 			game.bot.gameboard.allSunk.mockReturnValue(false);
@@ -324,7 +370,24 @@ describe('Game', () => {
 			const runPromise = game.runGame();
 			await new Promise((resolve) => setTimeout(resolve, 100));
 			game.handleClickOnCell(2, 3);
-			await runPromise;
+
+			await new Promise((resolve) => setTimeout(resolve, 100));
+			game.handleClickOnCell(2, 8);
+
+			await Promise.race([
+				runPromise,
+				new Promise((resolve) =>
+					setTimeout(() => {
+						console.log('Game timed out. Current state:', {
+							currentPlayer:
+								game.currentPlayer === game.human ? 'Human' : 'Bot',
+							isGameRunning: game.isGameRunning,
+							isGameOver: game.isGameOver,
+						});
+						resolve();
+					}, 200)
+				),
+			]);
 
 			expect(game.isGameOver).toBe(true);
 			expect(game.winner).toBe(game.bot);
@@ -342,7 +405,7 @@ describe('Game', () => {
 
 			// End game to prevent hanging
 			game.isGameOver = true;
-			// await runPromise;
+
 			await Promise.race([
 				runPromise,
 				new Promise((resolve) =>
@@ -354,7 +417,7 @@ describe('Game', () => {
 							isGameOver: game.isGameOver,
 						});
 						resolve();
-					}, 2000)
+					}, 200)
 				),
 			]);
 
@@ -393,6 +456,7 @@ describe('Game', () => {
 
 			// End game to prevent hanging
 			game.isGameOver = true;
+
 			// await runPromise;
 			await Promise.race([
 				runPromise,
@@ -405,7 +469,7 @@ describe('Game', () => {
 							isGameOver: game.isGameOver,
 						});
 						resolve();
-					}, 2000)
+					}, 200)
 				),
 			]);
 

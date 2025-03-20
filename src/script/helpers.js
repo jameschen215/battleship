@@ -13,6 +13,12 @@ export function isCoordinateOnBoard(row, col) {
 
 // Shake animation
 export const shakeElement = (element, duration = 200, shakeDistance = 5) => {
+	// Validate element
+	if (!element || !(element instanceof HTMLElement)) {
+		console.error('Invalid element provided to scaleElement');
+		return;
+	}
+
 	element.style.transition = `transform ${duration / 4}ms ease-in-out`;
 	element.style.transform = `translateX(${shakeDistance}px)`;
 
@@ -31,15 +37,8 @@ export const shakeElement = (element, duration = 200, shakeDistance = 5) => {
 	}, duration / 4);
 };
 
-function getStartPointOfAShip(ship) {
-	if (ship.direction === 'horizontal') {
-		return ship.positions.sort((a, b) => a[1] - b[1])[0];
-	}
-
-	return ship.positions.sort((a, b) => a[0] - b[0])[0];
-}
-
-export function getBufferZone(row, col, size, direction) {
+export function getBufferZone(positions, size, direction) {
+	const [row, col] = positions[0];
 	const buffer = [];
 
 	const startRow = Math.max(0, row - 1);
@@ -55,7 +54,10 @@ export function getBufferZone(row, col, size, direction) {
 
 	for (let r = startRow; r <= endRow; r++) {
 		for (let c = startCol; c <= endCol; c++) {
-			if (isCoordinateOnBoard(r, c)) {
+			if (
+				isCoordinateOnBoard(r, c) &&
+				!positions.some(([pr, pc]) => pr === r && pc === c)
+			) {
 				buffer.push([r, c]);
 			}
 		}
@@ -68,8 +70,7 @@ export function getSunkShipsBufferZone(sunkShips) {
 	const totalBuffer = [];
 
 	sunkShips.forEach((ship) => {
-		const [row, col] = getStartPointOfAShip(ship);
-		const buffer = getBufferZone(row, col, ship.size, ship.direction);
+		const buffer = getBufferZone(ship.positions, ship.size, ship.direction);
 
 		totalBuffer.push(buffer);
 	});

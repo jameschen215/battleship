@@ -50,7 +50,7 @@ describe('Player', () => {
 	describe('attack', () => {
 		it('throws error when attack is called directly', () => {
 			const player = new Player();
-			const enemyBoard = new Gameboard(10);
+			const enemyBoard = new Gameboard();
 			expect(() => player.attack(enemyBoard, 0, 0)).toThrow(
 				'attack method must be implemented by subclass'
 			);

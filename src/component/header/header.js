@@ -9,8 +9,6 @@ import { HumanPlayer } from '../../script/human-player.js';
 import { EasyComputerPlayer } from '../../script/computer-players/easy-computer-player.js';
 import { HardComputerPlayer } from '../../script/computer-players/hard-computer-player.js';
 
-const DIFFICULTY_ICON = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chart-no-axes-column-increasing"><line x1="12" x2="12" y1="20" y2="10"/><line x1="18" x2="18" y1="20" y2="4"/><line x1="6" x2="6" y1="20" y2="16"/></svg>`;
-
 export function Header(game) {
 	const header = document.createElement('header');
 	header.className = 'header';
@@ -28,7 +26,7 @@ export function Header(game) {
 	let infoMsg = '';
 
 	if (game.isGameRunning === false) {
-		infoMsg = 'Place the ships.';
+		infoMsg = 'Place your ships.';
 	} else {
 		infoMsg = `${
 			game.currentPlayer instanceof HumanPlayer ? 'Your' : "Bot's"

@@ -83,13 +83,11 @@ describe('NormalComputerPlayer', () => {
 		});
 	});
 
-	// getRandomCoordinate has been tested in easy-computer-player.test.js
-
 	// test attack
-	jest.mock('../../src/script/utils.js', () => ({
-		shuffle: jest.fn(),
-		getRandomInt: jest.fn(),
-	}));
+	// jest.mock('../../src/script/utils.js', () => ({
+	// 	shuffle: jest.fn(),
+	// 	getRandomInt: jest.fn(),
+	// }));
 
 	describe('attack', () => {
 		let bot = null;
@@ -134,7 +132,8 @@ describe('NormalComputerPlayer', () => {
 
 				expect(result).toEqual(expected);
 				expect(enemyBoard.getCellState(4, 4)).toBe('miss');
-				expect(enemyBoard.ships[0].ship.getHits()).toBe(0);
+				expect(enemyBoard.ships[0].ship.hits).toBe(0);
+
 				enemyBoard.board.forEach((row, i) => {
 					row.forEach((cell, j) => {
 						if (i === 4 && j === 4) {

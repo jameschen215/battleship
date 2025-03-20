@@ -50,6 +50,8 @@ describe('HumanPlayer', () => {
 		beforeEach(() => {
 			human = new HumanPlayer();
 			enemyBoard = new Gameboard();
+			enemyBoard.placeShip(3, 0, 0);
+			enemyBoard.placeShip(2, 2, 0);
 		});
 
 		afterEach(() => jest.resetAllMocks());
@@ -64,25 +66,39 @@ describe('HumanPlayer', () => {
 			);
 		});
 
-		it('attacks specified coordinates and returns result', () => {
-			enemyBoard.placeShip(3, 0, 0);
-
-			const result1 = human.attack(enemyBoard, 0, 0);
-			expect(result1).toEqual({ hit: true, sunk: false });
-			expect(enemyBoard.getCellState(0, 0)).toBe('hit');
-
-			const result2 = human.attack(enemyBoard, 1, 0);
-			expect(result2).toEqual({ hit: false, sunk: false });
+		it('attacks and misses', () => {
+			const result = human.attack(enemyBoard, 1, 0);
+			expect(result).toEqual({
+				row: 1,
+				col: 0,
+				result: { hit: false, sunk: false },
+			});
 			expect(enemyBoard.getCellState(1, 0)).toBe('miss');
 		});
 
-		it('attacks and sinks a ship', () => {
-			enemyBoard.placeShip(2, 0, 0);
-			human.attack(enemyBoard, 0, 0);
-			const result = human.attack(enemyBoard, 0, 1);
+		it('attacks and hits but not sinks a ship', () => {
+			const result = human.attack(enemyBoard, 0, 0);
+			expect(result).toEqual({
+				row: 0,
+				col: 0,
+				result: { hit: true, sunk: false },
+			});
 
-			expect(result).toEqual({ hit: true, sunk: true });
-			expect(enemyBoard.getCellState(0, 1)).toBe('hit');
+			expect(enemyBoard.getCellState(0, 0)).toBe('hit');
+			expect(enemyBoard.allSunk()).toBe(false);
+		});
+
+		it('attacks, hits, and sinks a ship', () => {
+			human.attack(enemyBoard, 2, 0);
+			const result = human.attack(enemyBoard, 2, 1);
+
+			expect(result).toEqual({
+				row: 2,
+				col: 1,
+				result: { hit: true, sunk: true },
+			});
+			expect(enemyBoard.getCellState(2, 0)).toBe('hit');
+			expect(enemyBoard.getCellState(2, 1)).toBe('hit');
 		});
 	});
 });

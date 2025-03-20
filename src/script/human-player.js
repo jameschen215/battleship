@@ -17,6 +17,8 @@ export class HumanPlayer extends Player {
 			throw new Error('Must attack an enemy Gameboard instance');
 		}
 
-		return enemyBoard.receiveAttack(row, col);
+		const result = enemyBoard.receiveAttack(row, col);
+
+		return { row, col, result };
 	}
 }

@@ -42,6 +42,26 @@ describe('Ship', () => {
 		});
 	});
 
+	describe('getters', () => {
+		let ship = null;
+
+		beforeEach(() => {
+			ship = new Ship(3, 'vertical');
+		});
+
+		it("should get a ship's size", () => {
+			expect(ship.size).toBe(3);
+		});
+
+		it("should get a ship's direction", () => {
+			expect(ship.direction).toBe('vertical');
+		});
+
+		it("should get a ship's hits", () => {
+			expect(ship.hits).toBe(0);
+		});
+	});
+
 	describe('hit', () => {
 		let ship;
 
@@ -50,16 +70,16 @@ describe('Ship', () => {
 		});
 
 		it('increments hits by 1', () => {
-			expect(ship.getHits()).toBe(0);
+			expect(ship.hits).toBe(0);
 			ship.hit();
-			expect(ship.getHits()).toBe(1);
+			expect(ship.hits).toBe(1);
 			ship.hit();
-			expect(ship.getHits()).toBe(2);
+			expect(ship.hits).toBe(2);
 		});
 
 		it('does not affect size', () => {
 			ship.hit();
-			expect(ship.getHits()).toBe(1);
+			expect(ship.hits).toBe(1);
 			expect(ship.size).toBe(3);
 		});
 	});

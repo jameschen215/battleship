@@ -1,5 +1,3 @@
-import { BOARD_SIZE } from '../../src/script/constants.js';
-
 import { EasyComputerPlayer } from '../../src/script/computer-players/easy-computer-player.js';
 import { ComputerPlayer } from '../../src/script/computer-players/computer-player.js';
 import { Gameboard } from '../../src/script/gameboard.js';
@@ -74,7 +72,11 @@ describe('EasyComputerPlayer', () => {
 			const result = bot.attack(enemyBoard);
 
 			expect(enemyBoard.getCellState(3, 7)).toBe('miss');
-			expect(result).toEqual({ hit: false, sunk: false });
+			expect(result).toEqual({
+				row: 3,
+				col: 7,
+				result: { hit: false, sunk: false },
+			});
 		});
 
 		it('attacks and hits, but does not sink a ship', () => {
@@ -88,7 +90,11 @@ describe('EasyComputerPlayer', () => {
 			const result = bot.attack(enemyBoard);
 
 			expect(enemyBoard.getCellState(3, 7)).toBe('hit');
-			expect(result).toEqual({ hit: true, sunk: false });
+			expect(result).toEqual({
+				row: 3,
+				col: 7,
+				result: { hit: true, sunk: false },
+			});
 		});
 
 		it('attacks, hits, and sink a ship', () => {
@@ -106,7 +112,11 @@ describe('EasyComputerPlayer', () => {
 
 			expect(enemyBoard.getCellState(3, 7)).toBe('hit');
 			expect(enemyBoard.getCellState(4, 7)).toBe('hit');
-			expect(result).toEqual({ hit: true, sunk: true });
+			expect(result).toEqual({
+				row: 4,
+				col: 7,
+				result: { hit: true, sunk: true },
+			});
 		});
 	});
 });
