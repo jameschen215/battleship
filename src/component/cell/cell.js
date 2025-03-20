@@ -3,13 +3,6 @@ import './cell.css';
 import { CELL_CONTENT } from '../../script/constants.js';
 
 export function Cell(state, row, col, gameboard, updateUI) {
-	// Dragover handler
-	const dragoverHandler = (event) => {
-		event.preventDefault();
-		const [row, col] = event.target.dataset.coordinate.split(',').map(Number);
-		console.log({ row, col });
-	};
-
 	// Drop handler
 	const dropHandler = (event) => {
 		event.preventDefault();
@@ -48,20 +41,16 @@ export function Cell(state, row, col, gameboard, updateUI) {
 			gameboard.ships = gameboard.ships.filter((_, i) => i !== shipIndex);
 
 			// 2. Place the ship on board again with a new coordinate.
-			const { success, reason } = gameboard.placeShip(
+			const { success } = gameboard.placeShip(
 				shipSize,
 				endRow,
 				endCol,
 				shipDirection
 			);
 
-			console.log({ success, reason });
-
 			// 3. If the placement fails,
 			// revert the array of ships to its original state.
 			if (!success) gameboard.ships = originalShips;
-
-			console.log(gameboard.ships);
 
 			updateUI();
 		}
@@ -72,7 +61,7 @@ export function Cell(state, row, col, gameboard, updateUI) {
 	cellDom.dataset.coordinate = `${row},${col}`;
 	cellDom.innerHTML = CELL_CONTENT[state];
 
-	cellDom.addEventListener('dragover', dragoverHandler);
+	cellDom.addEventListener('dragover', (event) => event.preventDefault());
 	cellDom.addEventListener('drop', dropHandler);
 
 	return cellDom;

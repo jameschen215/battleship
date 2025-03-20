@@ -2,12 +2,14 @@ import './ship.css';
 
 import { CELL_SIZE } from '../../script/constants.js';
 
-export function Ship(ship, positions, index, isGameOver) {
+export function Ship(ship, positions, index, isGameOver, isGameRunning) {
 	const [startRow, startCol] = positions[0];
 
 	const shipDom = document.createElement('div');
 	shipDom.id = `ship-${index}`;
-	shipDom.className = `ship ship-${ship.size} ${ship.direction}`;
+	shipDom.className = `ship ship-${ship.size} ${ship.direction} ${
+		isGameRunning ? 'disabled' : ''
+	}`;
 	shipDom.dataset.index = index;
 	shipDom.dataset.size = ship.size;
 	shipDom.dataset.direction = ship.direction;
@@ -44,7 +46,7 @@ export function Ship(ship, positions, index, isGameOver) {
 	 * always under the ship, so you can never drop the ship onto it. By setting
 	 * the ship's pointerEvents to 'none', you can interact with overlapped cells.
 	 */
-	shipDom.addEventListener('drag', (event) => {
+	shipDom.addEventListener('drag', () => {
 		shipDom.style.pointerEvents = 'none';
 	});
 
@@ -53,7 +55,7 @@ export function Ship(ship, positions, index, isGameOver) {
 	 * with it, so to make the ship rotate by clicking on it, we have to make
 	 * it clickable again after dragging.
 	 */
-	shipDom.addEventListener('dragend', (event) => {
+	shipDom.addEventListener('dragend', () => {
 		shipDom.style.pointerEvents = 'auto';
 	});
 

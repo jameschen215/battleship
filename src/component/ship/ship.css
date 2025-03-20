@@ -73,3 +73,7 @@
 	background-color: var(--red-opacity);
 	opacity: 1;
 }
+
+.ship.disabled {
+	pointer-events: none;
+}
