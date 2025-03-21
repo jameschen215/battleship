@@ -356,5 +356,50 @@ describe('HardComputerPlayer', () => {
 
 			expect(attackResults).toEqual(expectedAttacks);
 		});
+
+		it("refuse to attack on sunk ship's buffer zone", () => {
+			jest
+				.spyOn(utils, 'getRandomInt')
+				.mockReturnValueOnce(0)
+				.mockReturnValueOnce(0)
+				.mockReturnValueOnce(1)
+				.mockReturnValueOnce(0)
+				.mockReturnValueOnce(1)
+				.mockReturnValueOnce(2)
+				.mockReturnValueOnce(0)
+				.mockReturnValueOnce(2)
+				.mockReturnValueOnce(5)
+				.mockReturnValueOnce(6);
+
+			jest.spyOn(utils, 'shuffle').mockReturnValue([
+				{ row: 0, col: 1 }, // Right - hit
+				{ row: 0, col: -1 }, // Left
+				{ row: -1, col: 0 }, // Up
+				{ row: 1, col: 0 }, // Down
+			]);
+
+			const expectedResults = [
+				{
+					row: 0,
+					col: 0,
+					result: { hit: true, sunk: false },
+				},
+				{
+					row: 0,
+					col: 1,
+					result: { hit: true, sunk: true },
+				},
+				// refuse to attack (1, 0), (1, 2), (0, 2)
+				{
+					row: 5,
+					col: 6,
+					result: { hit: true, sunk: false },
+				},
+			];
+
+			expectedResults.forEach((expected) => {
+				expect(bot.attack(enemyBoard)).toEqual(expected);
+			});
+		});
 	});
 });

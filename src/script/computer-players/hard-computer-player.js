@@ -2,12 +2,13 @@
  * ----------- HardComputerPlayer ----------
  */
 
-import { SHIP_SIZES } from '../constants.js';
+import { BOARD_SIZE, SHIP_SIZES } from '../constants.js';
 import { getRandomInt, shuffle } from '../utils.js';
 import {
 	isCoordinateOnBoard,
 	getSunkShipsBufferZone,
 	groupedSurroundingCoordinates,
+	getSurroundings,
 } from '../helpers.js';
 
 import { Gameboard } from '../gameboard.js';
@@ -112,8 +113,8 @@ export class HardComputerPlayer extends ComputerPlayer {
 	}
 
 	// Get the smallest size of the remaining ships
-	#getMinSizeOfShip() {
-		return Math.min(...this.#remainingShipSizes);
+	#getMaxSizeOfShip() {
+		return Math.max(...this.#remainingShipSizes);
 	}
 
 	#isLongEnoughForShips(row, col, size) {
@@ -134,6 +135,32 @@ export class HardComputerPlayer extends ComputerPlayer {
 		);
 	}
 
+	#getShipDirection(row, col) {
+		let direction = '';
+		let positive = true;
+
+		// If the attack hit a ship and the ship isn't sunk,
+		// try to get the last hit cell
+		let lastHit = null;
+		if (this.#hitQueue.length > 1) {
+			lastHit = this.#hitQueue.at(-2);
+		}
+
+		// If there exists last hit cell,determine the hit ship's direction
+		// and rightward or downward according to it, otherwise, carry on.
+		// (the first hit cell has no last hit cell, so you cannot determine
+		// the ship's direction)
+		if (lastHit && row === lastHit.row) {
+			direction = 'horizontal';
+			positive = col - lastHit.col > 0;
+		} else if (lastHit && col === lastHit.col) {
+			direction = 'vertical';
+			positive = row - lastHit.row > 0;
+		}
+
+		return { direction, positive };
+	}
+
 	#getRandomCoordinate() {
 		let row = null;
 		let col = null;
@@ -143,7 +170,7 @@ export class HardComputerPlayer extends ComputerPlayer {
 			col = getRandomInt(0, 9);
 		} while (
 			!this.#isValidCoord(row, col) ||
-			!this.#isLongEnoughForShips(row, col, this.#getMinSizeOfShip())
+			!this.#isLongEnoughForShips(row, col, this.#getMaxSizeOfShip())
 		);
 
 		return { row, col };
@@ -234,27 +261,13 @@ export class HardComputerPlayer extends ComputerPlayer {
 		this.#attackedCoordinates.add(JSON.stringify([row, col]));
 
 		if (result.hit && !result.sunk) {
-			// If the attack hit a ship and the ship isn't sunk,
-			// try to get the last hit cell
-			let lastHit = null;
-			if (this.#hitQueue.length > 0) {
-				lastHit = this.#hitQueue.at(-1);
-			}
-
-			// If there exists last hit cell,determine the hit ship's direction
-			// and rightward or downward according to it, otherwise, carry on.
-			// (the first hit cell has no last hit cell, so you cannot determine
-			// the ship's direction)
-			if (lastHit && row === lastHit.row) {
-				this.#attackingShipDirection = 'horizontal';
-				this.#rightwardOrDownward = col - lastHit.col > 0;
-			} else if (lastHit && col === lastHit.col) {
-				this.#attackingShipDirection = 'vertical';
-				this.#rightwardOrDownward = row - lastHit.row > 0;
-			}
-
 			// Since hit, add the coordinate to hitQueue
 			this.#hitQueue.push({ row, col });
+
+			// Set ship direction
+			const { direction, positive } = this.#getShipDirection(row, col);
+			this.#attackingShipDirection = direction;
+			this.#rightwardOrDownward = positive;
 		} else if (result.sunk) {
 			// If the ship is sunk, add the coordinate to the hit queue to calculate
 			// the ship's size and positions.
@@ -262,9 +275,14 @@ export class HardComputerPlayer extends ComputerPlayer {
 			// size by 1.
 			this.#hitQueue.push({ row, col });
 
-			// add the sunk ship to sunkShips
 			const size = this.#hitQueue.length;
 
+			// Set ship direction
+			const { direction, positive } = this.#getShipDirection(row, col);
+			this.#attackingShipDirection = direction;
+			this.#rightwardOrDownward = positive;
+
+			// Put the ship into sunk ships
 			this.#sunkShips.push({
 				size,
 				direction: this.#attackingShipDirection,
