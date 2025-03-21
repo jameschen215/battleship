@@ -61,3 +61,17 @@ Make your battleship project more impressive by introducing any of these modific
 - Create a 2-player option that lets users take turns by passing the laptop back and forth, or by spinning the monitor around on a desktop. Implement a ‘pass device’ screen so that players don’t see each other’s boards!
 
 - Polish the intelligence of the computer player by having it try adjacent slots after getting a ‘hit’.
+
+# The Final Battleship Project
+
+A classic Battleship game built as part of The Odin Project’s JavaScript curriculum. Features a strategic computer opponent, one-cell ship spacing, and a clean UI powered by vanilla JS, Webpack, and Jest-tested code.
+
+Play it live: [https://jameschen215.github.io/battleship/](https://jameschen215.github.io/battleship/)
+![Gameplay](/src/images/snapshot.png)
+
+## Features
+
+- Single-player mode against a random-placing computer opponent.
+- Enforces a one-cell gap between ships for strategic placement.
+- Responsive UI with vanilla JS and CSS.
+- Fully tested with Jest (overcame some wild dependency bugs!).
